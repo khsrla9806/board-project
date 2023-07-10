@@ -2,10 +2,14 @@ package com.board.board.domain;
 
 import com.board.board.type.Category;
 import com.board.board.type.Status;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
 @Entity
 public class Board {
     @Id
