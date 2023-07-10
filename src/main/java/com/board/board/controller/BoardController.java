@@ -5,8 +5,11 @@ import com.board.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.Valid;
 
 @RequiredArgsConstructor
 @RequestMapping("/board")
@@ -24,9 +27,14 @@ public class BoardController {
 
     @PostMapping
     public String createBoard(
-            @ModelAttribute BoardDto.CreateRequest dto,
+            @Valid @ModelAttribute("board") BoardDto.CreateRequest dto,
+            BindingResult bindingResult,
             @RequestParam MultipartFile thumbnail
     ) {
+        if (bindingResult.hasErrors()) {
+            return "board/createForm";
+        }
+
         Long boardId = boardService.save(dto, thumbnail);
 
         return "redirect:/board/" + boardId;
