@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link th:href="@{/css/bootstrap.min.css}" href="../css/bootstrap.min.css" rel="stylesheet">
+  <title>Board List Page</title>
+  <style>
+      .ellipsis {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+      }
+      .container {
+          width: 800px;
+      }
+  </style>
+</head>
+<body>
+  <div class="container text-center">
+    <div class="py-5 text-center">
+      <h2>게시글 목록</h2>
+    </div>
+    <div class="text-center">
+      <!-- 게시글 카드 시작 -->
+      <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-md-center">
+        <div class="col-4">
+          <div class="card">
+            <img th:src="@{/image/my.png}" th:onError="|this.src='/image/default.png'|" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">게시글 제목</h5>
+              <div class="ellipsis">
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              </div>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">작성자 닉네임</li>
+            </ul>
+            <div class="card-body text-center">
+              <a href="#" class="btn btn-primary">상세 보기</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="card">
+            <img th:src="@{/image/my.png}" th:onError="|this.src='/image/default.png'|" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">게시글 제목</h5>
+              <div class="ellipsis">
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              </div>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">작성자 닉네임</li>
+            </ul>
+            <div class="card-body text-center">
+              <a href="#" class="btn btn-primary">상세 보기</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="card">
+            <img th:src="@{/image/my.png}" th:onError="|this.src='/image/default.png'|" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">게시글 제목</h5>
+              <div class="ellipsis">
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              </div>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">작성자 닉네임</li>
+            </ul>
+            <div class="card-body text-center">
+              <a href="#" class="btn btn-primary">상세 보기</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="card">
+            <img th:src="@{/image/my.png}" th:onError="|this.src='/image/default.png'|" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">게시글 제목</h5>
+              <div class="ellipsis">
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              </div>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">작성자 닉네임</li>
+            </ul>
+            <div class="card-body text-center">
+              <a href="#" class="btn btn-primary">상세 보기</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="card">
+            <img th:src="@{/image/my.png}" th:onError="|this.src='/image/default.png'|" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">게시글 제목</h5>
+              <div class="ellipsis">
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              </div>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">작성자 닉네임</li>
+            </ul>
+            <div class="card-body text-center">
+              <a href="#" class="btn btn-primary">상세 보기</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-4">
+          <div class="card">
+            <img th:src="@{/image/my.png}" th:onError="|this.src='/image/default.png'|" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">게시글 제목</h5>
+              <div class="ellipsis">
+                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+              </div>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">작성자 닉네임</li>
+            </ul>
+            <div class="card-body text-center">
+              <a href="#" class="btn btn-primary">상세 보기</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 게시글 카드 종료 -->
+
+      <!-- 페이지 네이션 시작 -->
+      <div class="py-5">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center">
+            <li class="page-item">
+              <a class="page-link" href="#" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+              <a class="page-link" href="#" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+      <!-- 페이지 네이션 종료 -->
+    </div>
+
+
+  </div>
+</body>
+</html>
