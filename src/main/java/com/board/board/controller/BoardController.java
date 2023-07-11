@@ -2,7 +2,11 @@ package com.board.board.controller;
 
 import com.board.board.dto.BoardDto;
 import com.board.board.service.BoardService;
+import com.board.board.utils.ImageUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 
+import java.net.MalformedURLException;
 import static com.board.board.type.Category.COMMON;
 import static com.board.board.type.Category.PRO;
 
@@ -47,28 +52,39 @@ public class BoardController {
         return "redirect:/board/" + boardId;
     }
 
-    @GetMapping("/{category}")
-    public String boardList(
-            @PathVariable String category,
+    @GetMapping("/common")
+    public String commonBoardList(
             Model model,
             @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<BoardDto.ListResponse> boards;
-
-        // TODO: 상수화
-        if (category.equals("common")) {
-            boards = boardService.findAllByCategory(COMMON, pageable);
-            model.addAttribute("categoryTitle", "새싹 회원");
-        } else if (category.equals("pro")) {
-            boards = boardService.findAllByCategory(PRO, pageable);
-            model.addAttribute("categoryTitle", "우수 회원");
-        } else {
-            throw new RuntimeException(); // TODO: 커스텀 Exception 처리
-        }
+        Page<BoardDto.ListResponse> boards = boardService.findAllByCategory(COMMON, pageable);
         model.addAttribute("boards", boards);
-        model.addAttribute("category", category);
+        model.addAttribute("categoryTitle", "새싹 회원");
+        model.addAttribute("category", "common");
         model.addAttribute("maxPage", 5);
 
         return "board/boards";
+    }
+
+    @GetMapping("/pro")
+    public String proBoardList(
+            Model model,
+            @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<BoardDto.ListResponse> boards = boardService.findAllByCategory(PRO, pageable);
+        model.addAttribute("boards", boards);
+        model.addAttribute("categoryTitle", "우수 회원");
+        model.addAttribute("category", "pro");
+        model.addAttribute("maxPage", 5);
+
+        return "board/boards";
+    }
+  
+    @ResponseBody
+    @GetMapping("/image/{filename}")
+    public Resource thumbnailImage(@PathVariable String filename) throws MalformedURLException {
+        String fullPath = ImageUtils.getFullPath(filename);
+
+        return new UrlResource("file:" + fullPath);
     }
 }
