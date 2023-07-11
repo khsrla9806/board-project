@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
 
+import static com.board.board.type.Category.COMMON;
 import static com.board.board.type.Status.ACTIVE;
 
 @RequiredArgsConstructor
@@ -30,15 +31,16 @@ public class BoardServiceImpl implements BoardService {
 
         board.setTitle(dto.getTitle());
         board.setContent(dto.getContent());
-        board.setCategory(null); // TODO: Member 정보 받아서 새싹, 우수 회원 확인 후 입력
+        board.setCategory(COMMON); // TODO: Member 정보 받아서 새싹, 우수 회원 확인 후 입력
         board.setStatus(ACTIVE);
         board.setMember_id(null); // TODO: Member 정보 받아서 의존 관계 형성
 
         if (!thumbnail.isEmpty()) {
-            String fullPath = getThumbnailStorePath(thumbnail.getOriginalFilename());
+            String storeThumbnailName = getStoreThumbnailName(thumbnail.getOriginalFilename());
+            String fullPath = ImageUtils.getFullPath(storeThumbnailName);
             try {
                 thumbnail.transferTo(new File(fullPath));
-                board.setThumbnail(fullPath);
+                board.setThumbnail(storeThumbnailName);
             } catch (IOException e) {
                 throw new RuntimeException(); // TODO: 추후 CustomException 생성하여 처리
             }

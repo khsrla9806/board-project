@@ -47,7 +47,7 @@ public class BoardDto {
                     .title(board.getTitle())
                     .content(board.getContent())
                     .thumbnail(board.getThumbnail())
-                    .nickname(board.getMember_id().toString()) // TODO: Member 연관관계 설정되면 수정
+                    .nickname("임시 닉네임") // TODO: Member 연관관계 설정되면 수정
                     .build();
         }
     }
