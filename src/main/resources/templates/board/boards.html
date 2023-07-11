@@ -32,7 +32,7 @@
                  class="card-img-top" width="214" height="167" />
             <div class="card-body">
               <h5 class="card-title" th:text="${board.title}">게시글 제목</h5>
-              <div class="ellipsis" th:text="${board.content}">게시글 본문</div>
+              <div class="ellipsis" th:utext="${board.content}">게시글 본문</div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item" th:text="${board.nickname}">작성자 닉네임</li>
               </ul>
