@@ -1,5 +1,8 @@
 package com.board.board.dto;
 
+import com.board.board.domain.Board;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
@@ -29,13 +32,24 @@ public class BoardDto {
     }
 
     @Getter
-    @Setter
+    @AllArgsConstructor
+    @Builder
     public static class ListResponse {
         private Long id;
         private String title;
         private String content;
         private String thumbnail;
         private String nickname;
+
+        public static ListResponse fromEntity(Board board) {
+            return ListResponse.builder()
+                    .id(board.getId())
+                    .title(board.getTitle())
+                    .content(board.getContent())
+                    .thumbnail(board.getThumbnail())
+                    .nickname(board.getMember_id().toString()) // TODO: Member 연관관계 설정되면 수정
+                    .build();
+        }
     }
 
     @Getter
