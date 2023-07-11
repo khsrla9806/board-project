@@ -6,6 +6,7 @@ import com.board.board.utils.ImageUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 
 import java.net.MalformedURLException;
-
 import static com.board.board.type.Category.COMMON;
 import static com.board.board.type.Category.PRO;
 
@@ -79,7 +79,7 @@ public class BoardController {
 
         return "board/boards";
     }
-
+  
     @ResponseBody
     @GetMapping("/image/{filename}")
     public Resource thumbnailImage(@PathVariable String filename) throws MalformedURLException {
