@@ -5,6 +5,7 @@ import com.board.board.dto.BoardDto;
 import com.board.board.repository.BoardRepository;
 import com.board.board.service.BoardService;
 import com.board.board.type.Category;
+import com.board.board.utils.ImageUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,18 +51,10 @@ public class BoardServiceImpl implements BoardService {
         return board.getId();
     }
 
-    private String getThumbnailStorePath(String thumbnailOriginalName) {
+    private String getStoreThumbnailName(String thumbnailOriginalName) {
         String uuid = UUID.randomUUID().toString();
-        String homeDir = System.getProperty("user.home");
-        String uploadFolderName = "board-store"; // TODO: Properties 분리
 
-        File uploadFolder = new File(homeDir + File.separator + uploadFolderName);
-        if (!uploadFolder.exists()) {
-            uploadFolder.mkdir(); // 홈 경로에 board-store 폴더가 존재하지 않으면 만든다.
-        }
-
-        // 서버를 올려서 할 것이 아니고 Local 작동하기 때문에 OS별 Home 디렉터리에 파일 생성
-        return homeDir + File.separator + uploadFolderName + File.separator + uuid + thumbnailOriginalName;
+        return uuid + thumbnailOriginalName;
     }
 
     public Page<BoardDto.ListResponse> findAllByCategory(Category category, Pageable pageable) {
