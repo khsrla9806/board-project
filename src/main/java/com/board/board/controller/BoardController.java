@@ -47,26 +47,29 @@ public class BoardController {
         return "redirect:/board/" + boardId;
     }
 
-    @GetMapping("/{category}")
-    public String boardList(
-            @PathVariable String category,
+    @GetMapping("/common")
+    public String commonBoardList(
             Model model,
             @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Page<BoardDto.ListResponse> boards;
-
-        // TODO: 상수화
-        if (category.equals("common")) {
-            boards = boardService.findAllByCategory(COMMON, pageable);
-            model.addAttribute("categoryTitle", "새싹 회원");
-        } else if (category.equals("pro")) {
-            boards = boardService.findAllByCategory(PRO, pageable);
-            model.addAttribute("categoryTitle", "우수 회원");
-        } else {
-            throw new RuntimeException(); // TODO: 커스텀 Exception 처리
-        }
+        Page<BoardDto.ListResponse> boards = boardService.findAllByCategory(COMMON, pageable);
         model.addAttribute("boards", boards);
-        model.addAttribute("category", category);
+        model.addAttribute("categoryTitle", "새싹 회원");
+        model.addAttribute("category", "common");
+        model.addAttribute("maxPage", 5);
+
+        return "board/boards";
+    }
+
+    @GetMapping("/pro")
+    public String proBoardList(
+            Model model,
+            @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<BoardDto.ListResponse> boards = boardService.findAllByCategory(PRO, pageable);
+        model.addAttribute("boards", boards);
+        model.addAttribute("categoryTitle", "우수 회원");
+        model.addAttribute("category", "pro");
         model.addAttribute("maxPage", 5);
 
         return "board/boards";
