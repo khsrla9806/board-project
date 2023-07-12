@@ -2,6 +2,7 @@ package com.board.board.domain;
 
 import com.board.board.type.Category;
 import com.board.board.type.Status;
+import com.board.member.domain.Member;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +25,8 @@ public class Board {
 
     private String thumbnail;
 
-    private Long member_id; // TODO: Member ManyToOne 관계 형성
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
