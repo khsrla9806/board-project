@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link th:href="@{/css/board.css}" href="../css/board.css" rel="stylesheet">
+  <link th:href="@{/css/bootstrap.min.css}" href="../css/bootstrap.min.css" rel="stylesheet">
+  <title>Board Detail Page</title>
+
+  <style>
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="button-box">
+      <div class="row">
+        <span class="col button-box-left">
+          <a th:href="|/board/${board.category.toString().toLowerCase()}|"
+             href="#" class="btn btn-outline-dark btn-sm">목록으로</a>
+        </span>
+        <span class="col button-box-right">
+          <a href="#" class="btn btn-outline-success btn-sm">수정</a>
+          <a href="#" class="btn btn-outline-danger btn-sm">삭제</a>
+          <a href="#" class="btn btn-danger btn-sm">신고</a>
+        </span>
+      </div>
+    </div>
+    <hr>
+    <div class="title-box">
+      <div class="title-items">
+        <span id="category" th:text="${boardCategory}"></span>
+        <h1 id="title" th:text="${board.title}"></h1>
+      </div>
+      <span id="nickname" th:text="|작성자: ${board.nickname}|"></span>
+    </div>
+    <hr>
+    <div class="content-box" th:utext="${board.content}"></div>
+    <hr>
+    <div class="reply-box">
+      댓글 영역
+    </div>
+  </div>
+</body>
+</html>
