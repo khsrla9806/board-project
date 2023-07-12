@@ -79,6 +79,24 @@ public class BoardController {
 
         return "board/boards";
     }
+
+    @GetMapping("/{id}")
+    public String boardDetail(@PathVariable Long id, Model model) {
+        BoardDto.DetailResponse boardDetailResponse = boardService.findById(id);
+        String category = getBoardCategory(boardDetailResponse);
+        model.addAttribute("boardCategory", category);
+        model.addAttribute("board", boardDetailResponse);
+
+        return "board/board";
+    }
+
+    private String getBoardCategory(BoardDto.DetailResponse boardDetailResponse) {
+        String category = boardDetailResponse.getCategory().name();
+        if (category.equals("COMMON")) {
+            return "[새싹 회원 게시판]";
+        }
+        return "[우수 회원 게시판]";
+    }
   
     @ResponseBody
     @GetMapping("/image/{filename}")
