@@ -2,20 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <link th:href="@{/css/bootstrap.min.css}" href="../css/bootstrap.min.css" rel="stylesheet">
+  <link th:href="@{/css/bootstrap.min.css}" href="../css/boards.css" rel="stylesheet">
+  <link th:href="@{/css/boards.css}" href="../css/bootstrap.min.css" rel="stylesheet">
   <title>Board List Page</title>
-  <style>
-      .ellipsis {
-          overflow: hidden;
-          text-overflow: ellipsis;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-      }
-      .container {
-          width: 800px;
-      }
-  </style>
 </head>
 <body>
   <div class="container text-center">
@@ -23,7 +12,11 @@
       <h2 th:text="|${categoryTitle} 게시글 목록|">게시글 목록</h2>
     </div>
 
-    <div class="text-center" style="height: 810px">
+    <div th:if="${boards.totalPages == 0}">
+      <h6 style="color: #636464">등록된 게시글이 없습니다.</h6>
+    </div>
+
+    <div class="text-center">
       <!-- 게시글 카드 시작 -->
       <div class="row row-cols-1 row-cols-md-3 g-4">
         <div class="col-4" th:each="board : ${boards}">
@@ -31,13 +24,11 @@
             <img th:src="|/board/image/${board.thumbnail}|" th:onError="|this.src='/image/default.png'|"
                  class="card-img-top" width="214" height="167" />
             <div class="card-body">
-              <h5 class="card-title" th:text="${board.title}">게시글 제목</h5>
-              <div class="ellipsis" th:utext="${board.content}">게시글 본문</div>
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item" th:text="${board.nickname}">작성자 닉네임</li>
-              </ul>
+              <h5 class="card-title ellipsis-title" th:text="${board.title}">게시글 제목</h5>
+              <div class="ellipsis-content" th:utext="${board.content}">게시글 본문</div>
+              <div id="nickname" th:text="|작성자: ${board.nickname}|">작성자 닉네임</div>
               <div class="card-body text-center">
-                <a th:href="@{/board/{id}(id=${board.id})}" class="btn btn-primary">상세 보기</a>
+                <a th:href="@{/board/{id}(id=${board.id})}" class="btn btn-outline-dark">상세 보기</a>
               </div>
             </div>
           </div>
@@ -47,7 +38,7 @@
     </div>
     <!-- 페이지 네이션 시작 -->
     <div class="py-5">
-      <nav aria-label="Page navigation example">
+      <nav aria-label="Page navigation example" th:if="${boards.totalPages != 0}">
         <ul class="pagination justify-content-center"
             th:with="start=${(boards.number/maxPage)*maxPage + 1}, end=(${(boards.totalPages == 0) ? 1 : (start + (maxPage - 1) < boards.totalPages ? start + (maxPage - 1) : boards.totalPages)})">
 
