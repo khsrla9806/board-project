@@ -29,12 +29,11 @@ public class BoardServiceImpl implements BoardService {
     @Transactional
     public Long save(BoardDto.CreateRequest dto, MultipartFile thumbnail) {
         Board board = new Board();
-
         board.setTitle(dto.getTitle());
         board.setContent(dto.getContent());
         board.setCategory(COMMON); // TODO: Member 정보 받아서 새싹, 우수 회원 확인 후 입력
         board.setStatus(ACTIVE);
-        board.setMember_id(null); // TODO: Member 정보 받아서 의존 관계 형성
+        board.setMember(null); // TODO: Member 정보 받아서 의존 관계 형성
 
         if (!thumbnail.isEmpty()) {
             String storeThumbnailName = getStoreThumbnailName(thumbnail.getOriginalFilename());
