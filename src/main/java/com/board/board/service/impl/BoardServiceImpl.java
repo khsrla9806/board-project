@@ -63,7 +63,10 @@ public class BoardServiceImpl implements BoardService {
     }
 
     public BoardDto.DetailResponse findById(Long id) {
-        return null;
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다.")); // TODO: CustomException 변경
+
+        return BoardDto.DetailResponse.fromEntity(board); // TODO: 댓글 사용자 정보 추가해야 함
     }
 
     public Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail) {
