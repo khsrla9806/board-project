@@ -83,6 +83,9 @@ public class BoardController {
     @ResponseBody
     @GetMapping("/image/{filename}")
     public Resource thumbnailImage(@PathVariable String filename) throws MalformedURLException {
+        if (filename.equals("null")) {
+            return new UrlResource("classpath:/static/image/default.png");
+        }
         String fullPath = ImageUtils.getFullPath(filename);
 
         return new UrlResource("file:" + fullPath);
