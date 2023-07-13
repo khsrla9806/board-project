@@ -2,6 +2,7 @@ package com.board.board.controller;
 
 import com.board.board.dto.BoardDto;
 import com.board.board.service.BoardService;
+import com.board.board.type.BoardView;
 import com.board.board.utils.ImageUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -59,9 +60,9 @@ public class BoardController {
     ) {
         Page<BoardDto.ListResponse> boards = boardService.findAll(pageable);
         model.addAttribute("boards", boards);
-        model.addAttribute("categoryTitle", "모든");
-        model.addAttribute("category", "");
+        model.addAttribute("categoryTitle", BoardView.ALL);
         model.addAttribute("maxPage", 5);
+
         return "board/boards";
     }
 
@@ -72,8 +73,7 @@ public class BoardController {
     ) {
         Page<BoardDto.ListResponse> boards = boardService.findAllByCategory(COMMON, pageable);
         model.addAttribute("boards", boards);
-        model.addAttribute("categoryTitle", "새싹 회원");
-        model.addAttribute("category", "common");
+        model.addAttribute("categoryTitle", BoardView.COMMON);
         model.addAttribute("maxPage", 5);
 
         return "board/boards";
@@ -86,8 +86,7 @@ public class BoardController {
     ) {
         Page<BoardDto.ListResponse> boards = boardService.findAllByCategory(PRO, pageable);
         model.addAttribute("boards", boards);
-        model.addAttribute("categoryTitle", "우수 회원");
-        model.addAttribute("category", "pro");
+        model.addAttribute("categoryTitle", BoardView.PRO);
         model.addAttribute("maxPage", 5);
 
         return "board/boards";
