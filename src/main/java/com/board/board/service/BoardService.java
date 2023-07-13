@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface BoardService {
     Long save(BoardDto.CreateRequest dto, MultipartFile thumbnail);
+    Page<BoardDto.ListResponse> findAll(Pageable pageable);
     Page<BoardDto.ListResponse> findAllByCategory(Category category, Pageable pageable);
     BoardDto.DetailResponse findById(Long id);
     Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail);
