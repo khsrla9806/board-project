@@ -52,6 +52,19 @@ public class BoardController {
         return "redirect:/board/" + boardId;
     }
 
+    @GetMapping
+    public String boardList(
+            Model model,
+            @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        Page<BoardDto.ListResponse> boards = boardService.findAll(pageable);
+        model.addAttribute("boards", boards);
+        model.addAttribute("categoryTitle", "모든");
+        model.addAttribute("category", "");
+        model.addAttribute("maxPage", 5);
+        return "board/boards";
+    }
+
     @GetMapping("/common")
     public String commonBoardList(
             Model model,
