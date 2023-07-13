@@ -1,20 +1,21 @@
 package com.board.response.service;
 
-import com.board.response.dto.CommonResult;
-import com.board.response.dto.ListResult;
-import com.board.response.dto.SingleResult;
+import com.board.response.dto.CommonResponse;
 import com.board.response.type.ErrorCode;
+import com.board.response.type.SuccessCode;
 
 import java.util.List;
 
 public interface ResponseService {
 
-    <T> SingleResult<T> getSingleResult(T data);
+    <T> CommonResponse<T> success(T data, SuccessCode successCode);
 
-    <T> ListResult<T> getListResult(List<T> list);
+    <T> CommonResponse<List<T>> successList(List<T> data, SuccessCode successCode);
 
-    CommonResult getSuccessResult();
+    CommonResponse<?> successWithNoContent(SuccessCode successCode);
 
-    CommonResult getFailResult(ErrorCode errorCode);
+    <T> CommonResponse<T> failure(ErrorCode errorCode);
+
+    <T> CommonResponse<List<T>> failureList(ErrorCode errorCode);
 
 }
