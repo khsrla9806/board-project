@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BoardRepository extends JpaRepository<Board, Long> {
     Page<Board> findAllByCategoryAndStatus(Category category, Status status, Pageable pageable);
+    Page<Board> findAllByStatus(Status status, Pageable pageable);
 }
