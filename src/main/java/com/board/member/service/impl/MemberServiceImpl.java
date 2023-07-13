@@ -8,9 +8,9 @@ import com.board.member.dto.MemberRegistration;
 import com.board.member.repository.EmailAuthRepository;
 import com.board.member.repository.MemberRepository;
 import com.board.member.service.MemberService;
-import com.board.response.dto.CommonResult;
-import com.board.response.dto.SingleResult;
+import com.board.response.dto.CommonResponse;
 import com.board.response.service.ResponseService;
+import com.board.response.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +20,7 @@ import static com.board.member.type.MemberRole.COMMON;
 import static com.board.member.type.MemberStatus.ACTIVE;
 import static com.board.member.type.MemberStatus.INACTIVE;
 import static com.board.response.type.ErrorCode.*;
+import static com.board.response.type.SuccessCode.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
@@ -35,11 +36,11 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public SingleResult<Long> register(MemberRegistration request) {
-        // 1. 유효성 검사(이메일, 전화번호, 닉네임 중복 확인)
+    public CommonResponse<Long> register(MemberRegistration request) {
+        // 1. 유효성 검사(닉네임, 이메일, 전화번호 중복 확인)
+        validateNicknameNotExist(request.getNickname());
         validateEmailNotExist(request.getEmail());
         validatePhoneNotExist(request.getPhone());
-        validateNicknameNotExist(request.getNickname());
 
         // 2. 비밀번호 일치 여부 확인
         validatePasswordMatch(request.getPassword(), request.getConfirmPassword());
@@ -59,11 +60,12 @@ public class MemberServiceImpl implements MemberService {
         EmailAuth emailAuth = emailAuthRepository.save(EmailAuth.generateEmailAuth(member));
         sendAuthConfirmEmail(member, emailAuth);
 
-        return responseService.getSingleResult(member.getId());
+        return responseService.success(member.getId(), SUCCESS);
     }
 
     @Override
-    public CommonResult authConfirm(Long id, String emailAuthToken) {
+    @Transactional
+    public CommonResponse<?> authConfirm(Long id, String emailAuthToken) {
         // 1. 유효성 검사(인증 정보, 토큰 일치 여부 확인)
         EmailAuth emailAuth = getEmailAuthById(id);
         validateEmailAuthTokenMatch(emailAuth, emailAuthToken);
@@ -76,8 +78,66 @@ public class MemberServiceImpl implements MemberService {
         member.updateMemberStatus(ACTIVE);
         memberRepository.save(member);
 
-        return responseService.getSuccessResult();
+        return responseService.successWithNoContent(SUCCESS);
     }
+
+    @Override
+    public CommonResponse<?> validateUsername(String username) {
+        // 1. 유효성 검사(이름 패턴 확인)
+        String usernamePattern = "^[가-힣]{2,3}$";
+        validatePatternMatch(usernamePattern, username, INVALID_USERNAME);
+
+        return responseService.successWithNoContent(SUCCESS);
+    }
+
+    @Override
+    public CommonResponse<?> validateNickname(String nickname) {
+        // 1. 유효성 검사(닉네임 패턴 및 중복 확인)
+        String nicknamePattern = "^[a-zA-Z가-힣0-9]{2,12}$";
+        validatePatternMatch(nicknamePattern, nickname, INVALID_NICKNAME);
+        validateNicknameNotExist(nickname);
+        return responseService.successWithNoContent(SUCCESS);
+    }
+
+    @Override
+    public CommonResponse<?> validateEmail(String email) {
+        // 1. 유효성 검사(이메일 중복 확인)
+        validateEmailNotExist(email);
+        return responseService.successWithNoContent(SUCCESS);
+    }
+
+    @Override
+    public CommonResponse<?> validatePhone(String phone) {
+        // 1. 유효성 검사(전화번호 형식 및 중복 확인)
+        validPhoneFormat(phone);
+        validatePhoneNotExist(phone);
+        return responseService.successWithNoContent(SUCCESS);
+    }
+
+    @Override
+    public CommonResponse<?> validatePassword(String password) {
+        // 1. 유효성 검사(비밀번호 패턴 확인)
+        String passwordPattern = "^(?=.*[a-zA-Z])(?=.*\\d)(?!.*\\s).{8,16}$";
+        validatePatternMatch(passwordPattern, password, INVALID_PASSWORD);
+
+        return responseService.successWithNoContent(SUCCESS);
+    }
+
+    @Override
+    public CommonResponse<?> validateConfirmPassword(String password, String confirmPassword) {
+        // 1. 유효성 검사(비밀번호 패턴 및 일치 여부 확인)
+        validatePassword(confirmPassword);
+        validatePasswordMatch(password, confirmPassword);
+        return responseService.successWithNoContent(SUCCESS);
+    }
+
+    /** 닉네임 중복 확인 */
+    private void validateNicknameNotExist(String nickname) {
+        memberRepository.findByNickname(nickname).ifPresent(member -> {
+            throw new MemberException(ALREADY_EXISTS_NICKNAME);
+        });
+    }
+
 
     /** 이메일 중복 확인 */
     private void validateEmailNotExist(String email) {
@@ -93,17 +153,16 @@ public class MemberServiceImpl implements MemberService {
         });
     }
 
-    /** 닉네임 중복 확인 */
-    private void validateNicknameNotExist(String nickname) {
-        memberRepository.findByNickname(nickname).ifPresent(member -> {
-            throw new MemberException(ALREADY_EXISTS_NICKNAME);
-        });
+    /** 전화번호 형식 확인 */
+    public void validPhoneFormat(String phone) {
+        String phonePattern = "^\\d{2,3}-\\d{3,4}-\\d{4}$";
+        validatePatternMatch(phonePattern, phone, INVALID_PHONE_FORMAT);
     }
 
     /** 비밀번호 일치 여부 확인 */
     public void validatePasswordMatch(String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
-            throw new MemberException(INVALID_PASSWORD);
+            throw new MemberException(MISMATCH_PASSWORD);
         }
     }
 
@@ -113,7 +172,7 @@ public class MemberServiceImpl implements MemberService {
         String text =
                 "<p>" + member.getNickname() + "님 안녕하세요!<p>" +
                         "<p>아래 메일인증 버튼을 클릭하여 회원가입을 완료해 주세요.</p>"
-                        + "<div><a target='_blank' href='http://localhost:8080/member/authConfirm?id=" + emailAuth.getId() + "&emailAuthToken=" + emailAuth.getEmailAuthToken() + "'> 메일 인증 </a><</div>";
+                        + "<div><a target='_blank' href='http://localhost:8080/members/authConfirm?id=" + emailAuth.getId() + "&emailAuthToken=" + emailAuth.getEmailAuthToken() + "'> 메일 인증 </a><</div>";
 
         mailComponents.sendMail(member.getEmail(), title, text);
     }
@@ -128,6 +187,13 @@ public class MemberServiceImpl implements MemberService {
     private static void validateEmailAuthTokenMatch(EmailAuth emailAuth, String emailAuthToken) {
         if (!emailAuth.getEmailAuthToken().equals(emailAuthToken)) {
             throw new RuntimeException("이메일 인증 토큰이 유효하지 않습니다.");
+        }
+    }
+
+    /** 입력받은 파라미터가 패턴과 일치 여부 확인 */
+    private void validatePatternMatch(String pattern, String parameter, ErrorCode errorCode) {
+        if (!parameter.matches(pattern)) {
+            throw new MemberException(errorCode);
         }
     }
 }
