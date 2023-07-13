@@ -60,13 +60,21 @@ public class BoardServiceImpl implements BoardService {
         return uuid + thumbnailOriginalName;
     }
 
-    public Page<BoardDto.ListResponse> findAll(Pageable pageable) {
+    public Page<BoardDto.ListResponse> findAll(Pageable pageable, String keyword) {
+        if (keyword != null && !keyword.isBlank()) {
+            return boardRepository.findAllByKeyword(ACTIVE, keyword, pageable)
+                    .map(BoardDto.ListResponse::fromEntity);
+        }
         Page<Board> boards = boardRepository.findAllByStatus(ACTIVE, pageable);
 
         return boards.map(BoardDto.ListResponse::fromEntity);
     }
 
-    public Page<BoardDto.ListResponse> findAllByCategory(Category category, Pageable pageable) {
+    public Page<BoardDto.ListResponse> findAllByCategory(Category category, Pageable pageable, String keyword) {
+        if (keyword != null && !keyword.isBlank()) {
+            return boardRepository.findAllByCategoryAndKeyword(category, ACTIVE, keyword, pageable)
+                    .map(BoardDto.ListResponse::fromEntity);
+        }
         Page<Board> boards = boardRepository.findAllByCategoryAndStatus(category, ACTIVE, pageable);
 
         return boards.map(BoardDto.ListResponse::fromEntity);
