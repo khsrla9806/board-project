@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -56,9 +57,10 @@ public class BoardController {
     @GetMapping
     public String boardList(
             Model model,
-            @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @Nullable @RequestParam String keyword
     ) {
-        Page<BoardDto.ListResponse> boards = boardService.findAll(pageable);
+        Page<BoardDto.ListResponse> boards = boardService.findAll(pageable, keyword);
         model.addAttribute("boards", boards);
         model.addAttribute("categoryTitle", BoardView.ALL);
         model.addAttribute("maxPage", 5);
@@ -69,9 +71,10 @@ public class BoardController {
     @GetMapping("/common")
     public String commonBoardList(
             Model model,
-            @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @Nullable @RequestParam String keyword
     ) {
-        Page<BoardDto.ListResponse> boards = boardService.findAllByCategory(COMMON, pageable);
+        Page<BoardDto.ListResponse> boards = boardService.findAllByCategory(COMMON, pageable, keyword);
         model.addAttribute("boards", boards);
         model.addAttribute("categoryTitle", BoardView.COMMON);
         model.addAttribute("maxPage", 5);
@@ -82,9 +85,10 @@ public class BoardController {
     @GetMapping("/pro")
     public String proBoardList(
             Model model,
-            @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(size = 6, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+            @Nullable @RequestParam String keyword
     ) {
-        Page<BoardDto.ListResponse> boards = boardService.findAllByCategory(PRO, pageable);
+        Page<BoardDto.ListResponse> boards = boardService.findAllByCategory(PRO, pageable, keyword);
         model.addAttribute("boards", boards);
         model.addAttribute("categoryTitle", BoardView.PRO);
         model.addAttribute("maxPage", 5);
