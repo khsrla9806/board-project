@@ -26,5 +26,11 @@
 #nickname {
     color: #5c636a;
     font-size: 0.7em;
-    margin-top: 20px;
+    margin-top: 15px;
+}
+
+#category {
+    color: #5c636a;
+    font-size: 0.7em;
+    margin-bottom: 5px;
 }
