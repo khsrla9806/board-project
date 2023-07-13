@@ -34,3 +34,15 @@
     font-size: 0.7em;
     margin-bottom: 5px;
 }
+
+.search-bar {
+    width: 500px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-bar i {
+    margin-right: 8px;
+}
