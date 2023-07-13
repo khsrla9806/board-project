@@ -41,6 +41,7 @@ public class BoardDto {
     @Builder
     public static class ListResponse {
         private Long id;
+        private Category category;
         private String title;
         private String content;
         private String thumbnail;
@@ -49,6 +50,7 @@ public class BoardDto {
         public static ListResponse fromEntity(Board board) {
             return ListResponse.builder()
                     .id(board.getId())
+                    .category(board.getCategory())
                     .title(board.getTitle())
                     .content(board.getContent())
                     .thumbnail(board.getThumbnail())
