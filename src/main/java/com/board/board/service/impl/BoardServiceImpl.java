@@ -6,6 +6,8 @@ import com.board.board.repository.BoardRepository;
 import com.board.board.service.BoardService;
 import com.board.board.type.Category;
 import com.board.board.utils.ImageUtils;
+import com.board.member.domain.Member;
+import com.board.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,12 +30,14 @@ public class BoardServiceImpl implements BoardService {
 
     @Transactional
     public Long save(BoardDto.CreateRequest dto, MultipartFile thumbnail) {
+        Member testSession = getSession(); // TODO: Member 세션 구현되면 이거 반드시 지우고 리팩토링 하기
+
         Board board = new Board();
         board.setTitle(dto.getTitle());
         board.setContent(dto.getContent());
         board.setCategory(COMMON); // TODO: Member 정보 받아서 새싹, 우수 회원 확인 후 입력
         board.setStatus(ACTIVE);
-        board.setMember(null); // TODO: Member 정보 받아서 의존 관계 형성
+        board.setMember(testSession); // TODO: Member 정보 받아서 의존 관계 형성
 
         if (!thumbnail.isEmpty()) {
             String storeThumbnailName = getStoreThumbnailName(thumbnail.getOriginalFilename());
@@ -82,4 +86,13 @@ public class BoardServiceImpl implements BoardService {
     public void deleteById(Long id) {
 
     }
+
+
+    /* 여기 부터 지워야하는 테스트 영역입니다. */
+    private final MemberRepository memberRepository;
+
+    public Member getSession() {
+        return memberRepository.findById(1L).orElse(null);
+    }
+    /* 여기 까지 지워야하는 테스트 영역입니다. */
 }

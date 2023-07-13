@@ -2,8 +2,6 @@ package com.board.board.dto;
 
 import com.board.board.domain.Board;
 import com.board.board.type.Category;
-import com.board.member.domain.Member;
-import com.board.reply.domain.Reply;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,8 +9,6 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
-import java.util.ArrayList;
-import java.util.List;
 
 public class BoardDto {
 
@@ -54,7 +50,8 @@ public class BoardDto {
                     .title(board.getTitle())
                     .content(board.getContent())
                     .thumbnail(board.getThumbnail())
-                    .nickname("임시 닉네임") // TODO: Member 연관관계 설정되면 수정
+                    // TODO: Member 연결되면 리펙토링
+                    .nickname(board.getMember() == null ? "없는 사용자" : board.getMember().getNickname())
                     .build();
         }
     }
@@ -77,7 +74,8 @@ public class BoardDto {
                     .category(board.getCategory())
                     .title(board.getTitle())
                     .content(board.getContent())
-                    .nickname("임시 닉네임") // TODO: Member 연결되면 Dto 변경
+                    // TODO: Member 연결되면 리펙토링
+                    .nickname(board.getMember() == null ? "없는 사용자" : board.getMember().getNickname())
                     .build();
         }
     }
