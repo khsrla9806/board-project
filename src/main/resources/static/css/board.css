@@ -39,3 +39,37 @@
 .reply-box {
     min-height: 200px;
 }
+
+/* Reply 설정 시작 */
+
+body {
+    background-color: #f7f6f6;
+}
+
+.card {
+    box-shadow: 5px 6px 6px 2px #e9ecef;
+    border-radius: 4px;
+}
+
+.user-img {
+    margin-top: 4px;
+}
+
+.icons i {
+    margin-left: 8px;
+}
+
+.reply {
+    margin-left: 12px;
+}
+
+.reply small {
+    color: #b7b4b4;
+}
+
+.reply small:hover {
+    color: gray;
+    cursor: pointer;
+}
+
+/* Reply 설정 끝 */
