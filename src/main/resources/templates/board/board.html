@@ -5,11 +5,14 @@
   <link th:href="@{/css/board.css}" href="../css/board.css" rel="stylesheet">
   <link th:href="@{/css/bootstrap.min.css}" href="../css/bootstrap.min.css" rel="stylesheet">
   <script th:src="@{/js/bootstrap.bundle.min.js}" src="../js/boot/bootstrap.bundle.min.js"></script>
+
+  <!-- fontawesome reply icon-->
+  <script src="https://kit.fontawesome.com/a1cef2084c.js" crossorigin="anonymous"></script>
+
+  <!-- Font Awesome icons (free version)-->
+  <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+
   <title>Board Detail Page</title>
-
-  <style>
-
-  </style>
 </head>
 <body>
   <!-- 네비게이션 바 영역 시작 -->
@@ -35,14 +38,141 @@
         <span id="category" th:text="${boardCategory}"></span>
         <h1 id="title" th:text="${board.title}"></h1>
       </div>
-      <span id="nickname" th:text="|작성자: ${board.nickname}|"></span>
+      <span id="nickname" th:text="|작성자: ${board.member.nickname}|"></span>
     </div>
     <hr>
     <div class="content-box" th:utext="${board.content}"></div>
     <hr>
     <div class="reply-box">
-      댓글 영역
+      <!-- Reply Content -->
+      <div class="container mt-5">
+        <div class="row d-flex justify-content-center">
+          <div class="col-md-8">
+
+            <div class="bg-light p-2">
+              <!-- 댓글 입력 창 -->
+              <div class="align-items-center">
+                <form th:action="@{/board/reply/new}" method="post">
+                  <input type="hidden" name="boardId" th:value="${board.id}">
+                  <input type="hidden" name="memberId" th:value="${board.member.id}">
+                  <label for="replyContent" class="m-2">
+                    <h3>댓글</h3>
+                  </label>
+                  <textarea class="form-control h-25" rows="3" id="replyContent" name="content"></textarea>
+                  <div class="col-lg-12 col-sm-12 text-lg-end text-end">
+                    <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit">
+                      작성
+                    </button>
+                  </div>
+                </form>
+              </div>
+              <!-- 댓글 입력 창 끝 -->
+
+              <!-- 댓글 조회 창 -->
+              <div class="card p-3" th:each="reply : ${board.replyResponseDtos}">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="user d-flex flex-row align-items-center">
+                    <img src="https://i.imgur.com/hczKIze.jpg" width="30" class="user-img rounded-circle mr-2">
+                    <div class="d-flex flex-column m-lg-2">
+                      <small class="font-weight-bold text-primary" th:text="${reply.memberId}">
+                        회원 이름
+                      </small>
+                      <p class="font-weight-bold" th:text="${reply.content}">
+                        댓글 내용
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="action d-flex justify-content-between mt-2 mb-2 align-items-center">
+                  <div class="reply px-4">
+                    <i class="fa-regular fa-comment-dots fa-sm" style="color: #000000;"></i>
+                    <small th:onclick="'showReplyForm(this)'">
+                      답글 쓰기
+                    </small>
+                  </div>
+                </div>
+
+                <!--최상위 댓글의 대댓글 입력 창 -->
+                <div class="card p-3 bg-light" style="display: none;">
+                  <div class="align-items-center">
+                    <form th:action="@{/board/reply/new}" method="post">
+                      <input type="hidden" name="boardId" th:value="${board.id}">
+                      <input type="hidden" name="memberId" th:value="${board.member.id}">
+                      <input type="hidden" name="parentId" th:value="${reply.id}">
+                      <textarea class="form-control h-25" rows="3" name="content"></textarea>
+                      <div class="col-lg-12 col-sm-12 text-lg-end text-end">
+                        <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit">
+                          작성
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+                <!-- 대댓글 리스트 -->
+                <div class="card p-3 bg-light" th:each="childReply : ${reply.children}"
+                     th:if="${!#arrays.isEmpty(reply.children)}">
+                  <div>
+                    <div class="user d-flex flex-row align-items-center">
+                      <i class="fa-solid fa-reply fa-rotate-180 fa-lg"
+                         style="color: #000000; --fa-li-margin: 2em;"></i>
+                      <img src="https://i.imgur.com/hczKIze.jpg" width="30"
+                           class="user-img rounded-circle mr-2">
+                      <div class="d-flex flex-column m-lg-2">
+                        <small class="font-weight-bold text-primary" th:text="${childReply.memberId}">
+                          대댓글 회원
+                        </small>
+                        <small th:text="${reply.memberId}">
+                          태깅유저(대상 회원)
+                        </small>
+                        <p class="font-weight-bold" th:text="${childReply.content}">
+                          대댓글 내용
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="action d-flex justify-content-between mt-2 align-items-center">
+                    <div class="reply px-4">
+                      <i class="fa-regular fa-comment-dots fa-sm" style="color: #000000;"></i>
+                      <small th:onclick="'showReplyForm(this)'">
+                        답글 쓰기
+                      </small>
+                    </div>
+                  </div>
+
+                  <!-- 대댓글의 댓글 리스트 -->
+                  <div class="bg-light p-2" style="display: none;">
+                    <div class="align-items-center">
+                      <form th:action="@{/board/reply/new}" method="post">
+                        <input type="hidden" name="boardId" th:value="${board.id}">
+                        <input type="hidden" name="memberId" th:value="${board.member.id}">
+                        <input type="hidden" name="parentId" th:value="${childReply.id}">
+                        <textarea class="form-control h-25" rows="3" name="content"></textarea>
+                        <div class="col-lg-12 col-sm-12 text-lg-end text-end">
+                          <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit">
+                            작성
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Reply Content END -->
     </div>
   </div>
+  <script>
+      function showReplyForm(element, replyId) {
+
+          const replyForm = element.parentElement.parentElement.nextElementSibling;
+
+          replyForm.style.display = (replyForm.style.display === 'none') ? 'block' : 'none';
+      }
+  </script>
 </body>
 </html>
