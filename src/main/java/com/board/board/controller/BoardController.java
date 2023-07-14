@@ -115,17 +115,17 @@ public class BoardController {
 
     private String getBoardCategory(BoardDto.DetailResponse boardDetailResponse) {
         String category = boardDetailResponse.getCategory().name();
-        if (category.equals("COMMON")) {
-            return "[새싹 회원 게시판]";
+        if (category.equals(COMMON.name())) {
+            return COMMON.getCategoryTitle();
         }
-        return "[우수 회원 게시판]";
+        return PRO.getCategoryTitle();
     }
   
     @ResponseBody
     @GetMapping("/image/{filename}")
     public Resource thumbnailImage(@PathVariable String filename) throws MalformedURLException {
-        if (filename.equals("null")) {
-            return new UrlResource("classpath:/static/image/default.png");
+        if (filename.equals(BoardView.NULL)) {
+            return new UrlResource(BoardView.DEFAULT_IMAGE_URL);
         }
         String fullPath = ImageUtils.getFullPath(filename);
 
