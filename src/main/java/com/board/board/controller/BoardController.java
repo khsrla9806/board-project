@@ -146,6 +146,22 @@ public class BoardController {
         return "board/updateForm";
     }
 
+    @PostMapping("/update")
+    public String updateBoard(
+            Principal principal,
+            @Valid @ModelAttribute("board") BoardDto.UpdateRequest dto,
+            BindingResult bindingResult,
+            @RequestParam MultipartFile thumbnail
+    ) {
+        checkAuthentication(principal);
+        if (bindingResult.hasErrors()) {
+            return "board/updateForm";
+        }
+
+        Long boardId = boardService.update(dto, thumbnail, principal);
+
+        return "redirect:/board/" + boardId;
+    }
   
     @ResponseBody
     @GetMapping("/image/{filename}")
