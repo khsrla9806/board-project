@@ -5,8 +5,7 @@ import com.board.response.service.ResponseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -24,6 +23,12 @@ public class GlobalExceptionHandler {
     public CommonResponse<?> handleMemberException(MemberException e) {
         log.error("{} is occurred. {}", e.getErrorCode(), e.getErrorMessage());
         return responseService.failure(e.getErrorCode());
+    }
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public CommonResponse<?> handlerUsernameNotFoundException(UsernameNotFoundException e) {
+        log.error("UsernameNotFoundException is occurred.", e);
+        return responseService.failure(LOAD_USER_FAILED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

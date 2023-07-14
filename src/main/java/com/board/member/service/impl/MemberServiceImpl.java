@@ -96,6 +96,7 @@ public class MemberServiceImpl implements MemberService {
         String nicknamePattern = "^[a-zA-Z가-힣0-9]{2,12}$";
         validatePatternMatch(nicknamePattern, nickname, INVALID_NICKNAME);
         validateNicknameNotExist(nickname);
+
         return responseService.successWithNoContent(SUCCESS);
     }
 
@@ -103,14 +104,17 @@ public class MemberServiceImpl implements MemberService {
     public CommonResponse<?> validateEmail(String email) {
         // 1. 유효성 검사(이메일 중복 확인)
         validateEmailNotExist(email);
+
         return responseService.successWithNoContent(SUCCESS);
     }
 
     @Override
     public CommonResponse<?> validatePhone(String phone) {
         // 1. 유효성 검사(전화번호 형식 및 중복 확인)
-        validPhoneFormat(phone);
+        String phonePattern = "^\\d{2,3}-\\d{3,4}-\\d{4}$";
+        validatePatternMatch(phonePattern, phone, INVALID_PHONE_FORMAT);
         validatePhoneNotExist(phone);
+
         return responseService.successWithNoContent(SUCCESS);
     }
 
@@ -128,6 +132,7 @@ public class MemberServiceImpl implements MemberService {
         // 1. 유효성 검사(비밀번호 패턴 및 일치 여부 확인)
         validatePassword(confirmPassword);
         validatePasswordMatch(password, confirmPassword);
+
         return responseService.successWithNoContent(SUCCESS);
     }
 
@@ -152,12 +157,6 @@ public class MemberServiceImpl implements MemberService {
         });
     }
 
-    /** 전화번호 형식 확인 */
-    public void validPhoneFormat(String phone) {
-        String phonePattern = "^\\d{2,3}-\\d{3,4}-\\d{4}$";
-        validatePatternMatch(phonePattern, phone, INVALID_PHONE_FORMAT);
-    }
-
     /** 비밀번호 일치 여부 확인 */
     public void validatePasswordMatch(String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
@@ -173,7 +172,42 @@ public class MemberServiceImpl implements MemberService {
                         "<p>아래 메일인증 버튼을 클릭하여 회원가입을 완료해 주세요.</p>"
                         + "<div><a target='_blank' href='http://localhost:8080/members/authConfirm?id=" + emailAuth.getId() + "&emailAuthToken=" + emailAuth.getEmailAuthToken() + "'> 메일 인증 </a><</div>";
 
+        // TODO 메일 인증 수정
+
+//        StringBuffer emailcontent = new StringBuffer();
+//        emailcontent.append("<!DOCTYPE html>");
+//        emailcontent.append("<html>");
+//        emailcontent.append("<head>");
+//        emailcontent.append("</head>");
+//        emailcontent.append("<body>");
+//        emailcontent.append(
+//                " <div" 																																																	+
+//                        "	style=\"font-family: 'Apple SD Gothic Neo', 'sans-serif' !important; width: 400px; height: 600px; border-top: 4px solid #02b875; margin: 100px auto; padding: 30px 0; box-sizing: border-box;\">"		+
+//                        "	<h1 style=\"margin: 0; padding: 0 5px; font-size: 28px; font-weight: 400;\">"																															+
+//                        "		<span style=\"font-size: 15px; margin: 0 0 10px 3px;\">YG1110 BLOG</span><br />"																													+
+//                        "		<span style=\"color: #02b875\">메일인증</span> 안내입니다."																																				+
+//                        "	</h1>\n"																																																+
+//                        "	<p style=\"font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px;\">"																													+
+//                        member.getNickname()																																													+
+//                        "		님 안녕하세요.<br />"																																													+
+//                        "		YG1110 BLOG에 가입해 주셔서 진심으로 감사드립니다.<br />"																																						+
+//                        "		아래 <b style=\"color: #02b875\">'메일 인증'</b> 버튼을 클릭하여 회원가입을 완료해 주세요.<br />"																													+
+//                        "		감사합니다."																																															+
+//                        "	</p>"																																																	+
+//                        "	<a style=\"color: #FFF; text-decoration: none; text-align: center;\""																																	+
+//                        "	href='http://localhost:8080/members/authConfirm?id=" + emailAuth.getId() + "&emailAuthToken=" + emailAuth.getEmailAuthToken() + ">" +
+//                        "		<p"																																																	+
+//                        "			style=\"display: inline-block; width: 210px; height: 45px; margin: 30px 5px 40px; background: #02b875; line-height: 45px; vertical-align: middle; font-size: 16px;\">"							+
+//                        "			메일 인증</p>"																																														+
+//                        "	</a>"																																																	+
+//                        "	<div style=\"border-top: 1px solid #DDD; padding: 5px;\"></div>"																																		+
+//                        " </div>"
+//        );
+//        emailcontent.append("</body>");
+//        emailcontent.append("</html>");
+
         mailComponents.sendMail(member.getEmail(), title, text);
+//        mailComponents.sendMail(member.getEmail(), title, emailcontent.toString());
     }
 
     /** 이메일 인증 정보 조회 */
