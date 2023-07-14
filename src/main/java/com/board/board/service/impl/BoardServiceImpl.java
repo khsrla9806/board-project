@@ -6,6 +6,7 @@ import com.board.board.repository.BoardRepository;
 import com.board.board.service.BoardService;
 import com.board.board.type.Category;
 import com.board.board.utils.ImageUtils;
+import com.board.exception.BoardException;
 import com.board.exception.MemberException;
 import com.board.member.domain.Member;
 import com.board.member.repository.MemberRepository;
@@ -38,6 +39,7 @@ public class BoardServiceImpl implements BoardService {
     private final ReplyRepository replyRepository;
     private final MemberRepository memberRepository;
 
+    @Override
     @Transactional
     public Long save(BoardDto.CreateRequest dto, MultipartFile thumbnail, Principal principal) {
         Member member = memberRepository.findByEmail(principal.getName())
@@ -50,6 +52,13 @@ public class BoardServiceImpl implements BoardService {
         board.setStatus(ACTIVE);
         board.setMember(member);
 
+        saveThumbnailFile(thumbnail, board);
+        boardRepository.save(board);
+
+        return board.getId();
+    }
+
+    private void saveThumbnailFile(MultipartFile thumbnail, Board board) {
         if (!thumbnail.isEmpty()) {
             String storeThumbnailName = getStoreThumbnailName(thumbnail.getOriginalFilename());
             String fullPath = ImageUtils.getFullPath(storeThumbnailName);
@@ -57,12 +66,11 @@ public class BoardServiceImpl implements BoardService {
                 thumbnail.transferTo(new File(fullPath));
                 board.setThumbnail(storeThumbnailName);
             } catch (IOException e) {
-                throw new RuntimeException(); // TODO: 추후 CustomException 생성하여 처리
+                throw new BoardException(ErrorCode.FILE_CANNOT_BE_PROCESSED);
             }
         }
-        boardRepository.save(board);
+    }
 
-        return board.getId();
     private Category getCategoryByMember(Member member) {
         if (member.getMemberRole() == MemberRole.COMMON) {
             return COMMON;
@@ -76,6 +84,7 @@ public class BoardServiceImpl implements BoardService {
         return uuid + thumbnailOriginalName;
     }
 
+    @Override
     public Page<BoardDto.ListResponse> findAll(Pageable pageable, String keyword) {
         if (keyword != null && !keyword.isBlank()) {
             return boardRepository.findAllByKeyword(ACTIVE, keyword, pageable)
@@ -86,6 +95,7 @@ public class BoardServiceImpl implements BoardService {
         return boards.map(BoardDto.ListResponse::fromEntity);
     }
 
+    @Override
     public Page<BoardDto.ListResponse> findAllByCategory(Category category, Pageable pageable, String keyword) {
         if (keyword != null && !keyword.isBlank()) {
             return boardRepository.findAllByCategoryAndKeyword(category, ACTIVE, keyword, pageable)
@@ -96,6 +106,7 @@ public class BoardServiceImpl implements BoardService {
         return boards.map(BoardDto.ListResponse::fromEntity);
     }
 
+    @Override
     public BoardDto.DetailResponse findById(Long id) {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다.")); // TODO: CustomException 변경
@@ -105,10 +116,12 @@ public class BoardServiceImpl implements BoardService {
         return BoardDto.DetailResponse.fromEntity(board, replies); // TODO: 댓글 사용자 정보 추가해야 함
     }
 
+    @Override
     public Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail) {
         return null;
     }
 
+    @Override
     public void deleteById(Long id) {
 
     }
