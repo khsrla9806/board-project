@@ -46,7 +46,21 @@ public class BoardDto {
         private String title;
         private String content;
         private String thumbnail;
-        private String nickname;
+        private MemberDto member; // 만감한 정보는 제외
+
+        @Getter
+        @Builder
+        public static class MemberDto {
+            private Long id;
+            private String nickname;
+
+            public static MemberDto fromEntity(Member member) {
+                return MemberDto.builder()
+                        .id(member.getId())
+                        .nickname(member.getNickname())
+                        .build();
+            }
+        }
 
         public static ListResponse fromEntity(Board board) {
             return ListResponse.builder()
@@ -55,8 +69,7 @@ public class BoardDto {
                     .title(board.getTitle())
                     .content(board.getContent())
                     .thumbnail(board.getThumbnail())
-                    // TODO: Member 연결되면 리펙토링
-                    .nickname(board.getMember() == null ? "없는 사용자" : board.getMember().getNickname())
+                    .member(MemberDto.fromEntity(board.getMember()))
                     .build();
         }
     }
@@ -81,8 +94,7 @@ public class BoardDto {
                     .category(board.getCategory())
                     .title(board.getTitle())
                     .content(board.getContent())
-                    // TODO: Member 연결되면 리펙토링
-                    .member(board.getMember() == null ? new Member() : board.getMember())
+                    .member(board.getMember())
                     .replyResponseDtos(replyResponseDtos)
                     .build();
         }
