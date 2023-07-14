@@ -4,6 +4,8 @@ import com.board.board.dto.BoardDto;
 import com.board.board.service.BoardService;
 import com.board.board.type.BoardView;
 import com.board.board.utils.ImageUtils;
+import com.board.reply.dto.ReplyDto;
+import com.board.reply.service.ReplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -31,6 +33,7 @@ import static com.board.board.type.Category.PRO;
 public class BoardController {
 
     private final BoardService boardService;
+    private final ReplyService replyService;
 
     @GetMapping("/createForm")
     public String boardCreateForm(Model model) {

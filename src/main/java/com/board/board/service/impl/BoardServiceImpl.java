@@ -8,6 +8,9 @@ import com.board.board.type.Category;
 import com.board.board.utils.ImageUtils;
 import com.board.member.domain.Member;
 import com.board.member.repository.MemberRepository;
+import com.board.reply.domain.Reply;
+import com.board.reply.dto.ReplyDto;
+import com.board.reply.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.board.board.type.Category.COMMON;
 import static com.board.board.type.Status.ACTIVE;
@@ -27,6 +32,7 @@ import static com.board.board.type.Status.ACTIVE;
 public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
+    private final ReplyRepository replyRepository;
 
     @Transactional
     public Long save(BoardDto.CreateRequest dto, MultipartFile thumbnail) {
@@ -84,7 +90,9 @@ public class BoardServiceImpl implements BoardService {
         Board board = boardRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다.")); // TODO: CustomException 변경
 
-        return BoardDto.DetailResponse.fromEntity(board); // TODO: 댓글 사용자 정보 추가해야 함
+        List<Reply> replies = replyRepository.findByBoardIdAndParentIsNull(board.getId());
+
+        return BoardDto.DetailResponse.fromEntity(board, replies); // TODO: 댓글 사용자 정보 추가해야 함
     }
 
     public Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail) {
