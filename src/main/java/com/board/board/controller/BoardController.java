@@ -1,6 +1,8 @@
 package com.board.board.controller;
 
+import com.board.board.domain.Board;
 import com.board.board.dto.BoardDto;
+import com.board.board.repository.BoardRepository;
 import com.board.board.service.BoardService;
 import com.board.board.type.BoardView;
 import com.board.board.utils.ImageUtils;
@@ -35,6 +37,7 @@ import static com.board.board.type.Category.PRO;
 public class BoardController {
 
     private final BoardService boardService;
+    private final BoardRepository boardRepository;
 
     @GetMapping("/createForm")
     public String boardCreateForm(Principal principal, Model model) {
@@ -128,6 +131,21 @@ public class BoardController {
 
         return "redirect:/";
     }
+
+    @GetMapping("/updateForm/{id}")
+    public String boardUpdateForm(
+            Principal principal,
+            Model model,
+            @PathVariable Long id
+    ) {
+        checkAuthentication(principal);
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new BoardException(ErrorCode.ENTITY_NOT_FOUND));
+        model.addAttribute("board", board);
+
+        return "board/updateForm";
+    }
+
   
     @ResponseBody
     @GetMapping("/image/{filename}")
