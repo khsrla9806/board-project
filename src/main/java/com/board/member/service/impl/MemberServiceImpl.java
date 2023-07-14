@@ -138,7 +138,6 @@ public class MemberServiceImpl implements MemberService {
         });
     }
 
-
     /** 이메일 중복 확인 */
     private void validateEmailNotExist(String email) {
         memberRepository.findByEmail(email).ifPresent(member -> {

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>게시글 상세 페이지</title>
+    <!-- fontawesome reply icon-->
+    <script src="https://kit.fontawesome.com/a1cef2084c.js" crossorigin="anonymous"></script>
+
+    <!-- Font Awesome icons (free version)-->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet"
+          type="text/css"/>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800"
+          rel="stylesheet" type="text/css"/>
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+
+    <style>
+        body {
+            background-color: #f7f6f6;
+        }
+
+        .card {
+            box-shadow: 5px 6px 6px 2px #e9ecef;
+            border-radius: 4px;
+        }
+
+        .user-img {
+            margin-top: 4px;
+        }
+
+        .icons i {
+            margin-left: 8px;
+        }
+
+        .reply {
+            margin-left: 12px;
+        }
+
+        .reply small {
+            color: #b7b4b4;
+        }
+
+        .reply small:hover {
+            color: gray;
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+<body>
+<!-- Navigation-->
+<nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
+    <div class="container px-4 px-lg-5">
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ms-auto py-4 py-lg-0">
+                <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" th:href="@{/board/common}">Home</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<!-- Page Header-->
+<header class="masthead">
+    <div class="container position-relative px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <div class="post-heading">
+                    <h1 th:text="${board.title}"></h1>
+                    <h2 class="subheading">Problems look mighty small from 150 miles up</h2>
+                    <span class="meta">
+                        Posted by
+                        <p th:text="${board.memberId}">Start Bootstrap</p>
+                        <p th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></p>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- Post Content-->
+<article class="mb-4">
+    <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-md-10 col-lg-8 col-xl-7">
+                <p th:text="${board.content}"></p>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- Reply Content -->
+
+<div class="container mt-5">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-8">
+
+            <div class="bg-light p-2">
+                <!-- 댓글 입력 창 -->
+                <div class="align-items-center">
+                    <form th:action="@{/board/reply/new}" method="post">
+                        <input type="hidden" name="boardId" th:value="${board.id}">
+                        <input type="hidden" name="memberId" th:value="${board.memberId}">
+                        <label for="replyContent" class="m-2">
+                            <h3>댓글</h3>
+                        </label>
+                        <textarea class="form-control h-25" rows="3" id="replyContent" name="content"></textarea>
+                        <div class="col-lg-12 col-sm-12 text-lg-end text-end">
+                            <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit">
+                                작성
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- 댓글 입력 창 끝 -->
+
+                <!-- 댓글 조회 창 -->
+                <div class="card p-3" th:each="reply : ${replies}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="user d-flex flex-row align-items-center">
+                            <img src="https://i.imgur.com/hczKIze.jpg" width="30" class="user-img rounded-circle mr-2">
+                            <div class="d-flex flex-column m-lg-2">
+                                <small class="font-weight-bold text-primary" th:text="${reply.memberId}">
+                                    회원 이름
+                                </small>
+                                <p class="font-weight-bold" th:text="${reply.content}">
+                                    댓글 내용
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action d-flex justify-content-between mt-2 mb-2 align-items-center">
+                        <div class="reply px-4">
+                            <i class="fa-regular fa-comment-dots fa-sm" style="color: #000000;"></i>
+                            <small th:onclick="'showReplyForm(this)'">
+                                답글 쓰기
+                            </small>
+                        </div>
+                    </div>
+
+                    <!--최상위 댓글의 대댓글 입력 창 -->
+                    <div class="card p-3 bg-light" style="display: none;">
+                        <div class="align-items-center">
+                            <form th:action="@{/board/reply/new}" method="post">
+                                <input type="hidden" name="boardId" th:value="${board.id}">
+                                <input type="hidden" name="memberId" th:value="${board.memberId}">
+                                <input type="hidden" name="parentId" th:value="${reply.id}">
+                                <textarea class="form-control h-25" rows="3" name="content"></textarea>
+                                <div class="col-lg-12 col-sm-12 text-lg-end text-end">
+                                    <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit">
+                                        작성
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 대댓글 리스트 -->
+                    <div class="card p-3 bg-light" th:each="childReply : ${reply.children}"
+                         th:if="${!#arrays.isEmpty(reply.children)}">
+                        <div>
+                            <div class="user d-flex flex-row align-items-center">
+                                <i class="fa-solid fa-reply fa-rotate-180 fa-lg"
+                                   style="color: #000000; --fa-li-margin: 2em;"></i>
+                                <img src="https://i.imgur.com/hczKIze.jpg" width="30"
+                                     class="user-img rounded-circle mr-2">
+                                <div class="d-flex flex-column m-lg-2">
+                                    <small class="font-weight-bold text-primary" th:text="${childReply.memberId}">
+                                        대댓글 회원
+                                    </small>
+                                    <small th:text="${reply.memberId}">
+                                        태깅유저(대상 회원)
+                                    </small>
+                                    <p class="font-weight-bold" th:text="${childReply.content}">
+                                        대댓글 내용
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action d-flex justify-content-between mt-2 align-items-center">
+                            <div class="reply px-4">
+                                <i class="fa-regular fa-comment-dots fa-sm" style="color: #000000;"></i>
+                                <small th:onclick="'showReplyForm(this)'">
+                                    답글 쓰기
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- 대댓글의 댓글 리스트 -->
+                        <div class="bg-light p-2" style="display: none;">
+                            <div class="align-items-center">
+                                <form th:action="@{/board/reply/new}" method="post">
+                                    <input type="hidden" name="boardId" th:value="${board.id}">
+                                    <input type="hidden" name="memberId" th:value="${board.memberId}">
+                                    <input type="hidden" name="parentId" th:value="${childReply.id}">
+                                    <textarea class="form-control h-25" rows="3" name="content"></textarea>
+                                    <div class="col-lg-12 col-sm-12 text-lg-end text-end">
+                                        <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit">
+                                            작성
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Reply Content END -->
+
+<!-- Footer-->
+
+<!-- Custom JS -->
+<script th:inline="javascript">
+
+    function showReplyForm(element, replyId) {
+
+        const replyForm = element.parentElement.parentElement.nextElementSibling;
+
+        replyForm.style.display = (replyForm.style.display === 'none') ? 'block' : 'none';
+    }
+
+</script>
+</body>
+</html>

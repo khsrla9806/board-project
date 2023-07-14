@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+  <!-- nav 영역 시작 -->
+  <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" th:text="|Board Project|" href="/board">Main Title</a>
+      <div class="collapse navbar-collapse" id="navbarScroll">
+        <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" th:text="|게시글 전체 목록|" href="/board">메뉴 1</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarScrollingDropdown" th:text="|게시판 카테고리|"
+               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              메뉴 2
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarScrollingDropdown">
+              <li><a class="dropdown-item" th:text="|새싹 회원 게시판|" href="/board/common">옵션 1</a></li>
+              <li><a class="dropdown-item" th:text="|우수 회원 게시판|" href="/board/pro">옵션 2</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <div class="d-flex px-2">
+        <!-- 추구 Principal 정보 받아서 로그인된 유저이면 {유저}님 안녕하세요. 이런 문구로 변경 -->
+        <button type="button" class="btn btn-outline-dark">로그인</button>
+      </div>
+    </div>
+  </nav>
+  <!-- nav 영역 끝 -->
+</body>
+</html>
