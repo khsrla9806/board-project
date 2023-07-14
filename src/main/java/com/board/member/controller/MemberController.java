@@ -3,6 +3,7 @@ package com.board.member.controller;
 import com.board.member.dto.MemberRegistration;
 import com.board.member.service.MemberService;
 import com.board.response.dto.CommonResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,6 +33,7 @@ public class MemberController {
     public String register(@Valid MemberRegistration request) {
         CommonResponse<Long> result = memberService.register(request);
         return "members/register";
+
     }
 
     @RequestMapping("/login")
@@ -47,6 +49,5 @@ public class MemberController {
         CommonResponse<?> result = memberService.authConfirm(id, emailAuthToken);
         model.addAttribute("result", result);
 
-        return "members/authConfirm";
     }
 }

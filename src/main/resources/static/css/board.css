@@ -1,0 +1,75 @@
+.container {
+    padding-top: 40px;
+}
+
+.button-box .button-box-left {
+    text-align: left;
+}
+
+.button-box .button-box-right {
+    text-align: right;
+}
+
+.title-box {
+    display: table;
+    min-height: 180px;
+    text-align: left;
+}
+
+.title-box .title-items {
+    margin-top: 30px;
+}
+
+.title-box #title {
+    font-size: 2em;
+    font-weight: bolder;
+    vertical-align: bottom;
+    margin-bottom: 20px;
+}
+
+.title-box #nickname, #category {
+    color: #5c636a;
+    font-size: 0.7em;
+}
+
+.content-box {
+    min-height: 250px;
+}
+
+.reply-box {
+    min-height: 200px;
+}
+
+/* Reply 설정 시작 */
+
+body {
+    background-color: #f7f6f6;
+}
+
+.card {
+    box-shadow: 5px 6px 6px 2px #e9ecef;
+    border-radius: 4px;
+}
+
+.user-img {
+    margin-top: 4px;
+}
+
+.icons i {
+    margin-left: 8px;
+}
+
+.reply {
+    margin-left: 12px;
+}
+
+.reply small {
+    color: #b7b4b4;
+}
+
+.reply small:hover {
+    color: gray;
+    cursor: pointer;
+}
+
+/* Reply 설정 끝 */

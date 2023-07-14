@@ -1,0 +1,48 @@
+.ellipsis-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.ellipsis-content {
+    height: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.card {
+    height: 390px;
+}
+
+.container {
+    width: 800px;
+}
+
+#nickname {
+    color: #5c636a;
+    font-size: 0.7em;
+    margin-top: 15px;
+}
+
+#category {
+    color: #5c636a;
+    font-size: 0.7em;
+    margin-bottom: 5px;
+}
+
+.search-bar {
+    width: 500px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-bar i {
+    margin-right: 8px;
+}

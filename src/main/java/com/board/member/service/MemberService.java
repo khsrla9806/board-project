@@ -28,5 +28,4 @@ public interface MemberService {
 
     // 비밀번호 일치 확인
     CommonResponse<?> validateConfirmPassword(String password, String confirmPassword);
-
 }
