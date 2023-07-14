@@ -126,8 +126,21 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail) {
-        return null;
+    @Transactional
+    public Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail, Principal principal) {
+        Member member = memberRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.LOAD_USER_FAILED));
+
+        Board board = boardRepository.findById(dto.getId())
+                .orElseThrow(() -> new BoardException(ErrorCode.ENTITY_NOT_FOUND));
+
+        checkOwnerOfBoardByMember(board, member);
+
+        saveThumbnailFile(thumbnail, board);
+        board.setTitle(dto.getTitle());
+        board.setContent(dto.getContent());
+
+        return board.getId();
     }
 
     @Override
@@ -143,6 +156,7 @@ public class BoardServiceImpl implements BoardService {
         board.setStatus(DELETED);
     }
 
+    /** 게시글의 주인이 요청한 사용자가 맞는지 확인 */
     private void checkOwnerOfBoardByMember(Board board, Member member) {
         if (!board.getMember().getId().equals(member.getId())) {
             throw new BoardException(ErrorCode.UNAUTHENTICATED_REQUEST);
