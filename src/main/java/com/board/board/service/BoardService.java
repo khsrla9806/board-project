@@ -14,5 +14,5 @@ public interface BoardService {
     Page<BoardDto.ListResponse> findAllByCategory(Category category, Pageable pageable, String keyword);
     BoardDto.DetailResponse findById(Long id);
     Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail);
-    void deleteById(Long id);
+    void deleteById(Long id, Principal principal);
 }
