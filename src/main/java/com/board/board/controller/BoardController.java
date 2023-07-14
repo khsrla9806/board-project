@@ -4,8 +4,8 @@ import com.board.board.dto.BoardDto;
 import com.board.board.service.BoardService;
 import com.board.board.type.BoardView;
 import com.board.board.utils.ImageUtils;
-import com.board.reply.dto.ReplyDto;
-import com.board.reply.service.ReplyService;
+import com.board.exception.BoardException;
+import com.board.response.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -24,6 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 
 import java.net.MalformedURLException;
+import java.security.Principal;
+
 import static com.board.board.type.Category.COMMON;
 import static com.board.board.type.Category.PRO;
 
@@ -33,10 +35,10 @@ import static com.board.board.type.Category.PRO;
 public class BoardController {
 
     private final BoardService boardService;
-    private final ReplyService replyService;
 
     @GetMapping("/createForm")
-    public String boardCreateForm(Model model) {
+    public String boardCreateForm(Principal principal, Model model) {
+        checkAuthentication(principal);
         model.addAttribute("board", new BoardDto.CreateRequest());
 
         return "board/createForm";
@@ -44,15 +46,17 @@ public class BoardController {
 
     @PostMapping
     public String createBoard(
+            Principal principal,
             @Valid @ModelAttribute("board") BoardDto.CreateRequest dto,
             BindingResult bindingResult,
             @RequestParam MultipartFile thumbnail
     ) {
+        checkAuthentication(principal);
         if (bindingResult.hasErrors()) {
             return "board/createForm";
         }
 
-        Long boardId = boardService.save(dto, thumbnail);
+        Long boardId = boardService.save(dto, thumbnail, principal);
 
         return "redirect:/board/" + boardId;
     }
@@ -126,5 +130,11 @@ public class BoardController {
         String fullPath = ImageUtils.getFullPath(filename);
 
         return new UrlResource("file:" + fullPath);
+    }
+
+    private void checkAuthentication(Principal principal) {
+        if (principal == null) {
+            throw new BoardException(ErrorCode.UNAUTHENTICATED_REQUEST);
+        }
     }
 }
