@@ -48,20 +48,6 @@ public class BoardDto {
         private String thumbnail;
         private MemberDto member; // 만감한 정보는 제외
 
-        @Getter
-        @Builder
-        public static class MemberDto {
-            private Long id;
-            private String nickname;
-
-            public static MemberDto fromEntity(Member member) {
-                return MemberDto.builder()
-                        .id(member.getId())
-                        .nickname(member.getNickname())
-                        .build();
-            }
-        }
-
         public static ListResponse fromEntity(Board board) {
             return ListResponse.builder()
                     .id(board.getId())
@@ -81,7 +67,7 @@ public class BoardDto {
         private Category category;
         private String title;
         private String content;
-        private Member member;
+        private MemberDto member;
         private List<ReplyDto.ReplyResponseDto> replyResponseDtos;
 
         public static DetailResponse fromEntity(Board board, List<Reply> replies) {
@@ -94,8 +80,24 @@ public class BoardDto {
                     .category(board.getCategory())
                     .title(board.getTitle())
                     .content(board.getContent())
-                    .member(board.getMember())
+                    .member(MemberDto.fromEntity(board.getMember()))
                     .replyResponseDtos(replyResponseDtos)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class MemberDto {
+        private Long id;
+        private String nickname;
+        private String email;
+
+        public static MemberDto fromEntity(Member member) {
+            return MemberDto.builder()
+                    .id(member.getId())
+                    .nickname(member.getNickname())
+                    .email(member.getEmail())
                     .build();
         }
     }
