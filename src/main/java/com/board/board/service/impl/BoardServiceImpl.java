@@ -30,6 +30,7 @@ import java.util.UUID;
 import static com.board.board.type.Category.COMMON;
 import static com.board.board.type.Category.PRO;
 import static com.board.board.type.Status.ACTIVE;
+import static com.board.board.type.Status.DELETED;
 
 @RequiredArgsConstructor
 @Service
@@ -122,7 +123,26 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public void deleteById(Long id) {
+    @Transactional
+    public void deleteById(Long id, Principal principal) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new BoardException(ErrorCode.ENTITY_NOT_FOUND));
+        Member member = memberRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.LOAD_USER_FAILED));
+        checkOwnerOfBoardByMember(board, member);
 
+        deleteRepliesOfBoard(board);
+        board.setStatus(DELETED);
+    }
+
+    private void checkOwnerOfBoardByMember(Board board, Member member) {
+        if (!board.getMember().getId().equals(member.getId())) {
+            throw new BoardException(ErrorCode.UNAUTHENTICATED_REQUEST);
+        }
+    }
+
+    /** 게시글 삭제 시에 해당 게시글에 관련된 댓글은 모두 삭제 */
+    private void deleteRepliesOfBoard(Board board) {
+        replyRepository.deleteAllByBoardId(board.getId());
     }
 }
