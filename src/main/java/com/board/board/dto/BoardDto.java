@@ -2,6 +2,9 @@ package com.board.board.dto;
 
 import com.board.board.domain.Board;
 import com.board.board.type.Category;
+import com.board.member.domain.Member;
+import com.board.reply.domain.Reply;
+import com.board.reply.dto.ReplyDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,6 +12,8 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class BoardDto {
 
@@ -63,19 +68,22 @@ public class BoardDto {
         private Category category;
         private String title;
         private String content;
-        private String nickname;
+        private Member member;
+        private List<ReplyDto.ReplyResponseDto> replyResponseDtos;
 
-        // TODO: Member 연결되면 변경 (id, nickname 갖는 DTO 하나 추가)
-        // TODO: 대댓글 구현 완료되면 (List<ReplyDto> 추가)
+        public static DetailResponse fromEntity(Board board, List<Reply> replies) {
+            List<ReplyDto.ReplyResponseDto> replyResponseDtos = replies.stream()
+                    .map(ReplyDto.ReplyResponseDto::fromEntity)
+                    .collect(Collectors.toList());
 
-        public static DetailResponse fromEntity(Board board) {
             return DetailResponse.builder()
                     .id(board.getId())
                     .category(board.getCategory())
                     .title(board.getTitle())
                     .content(board.getContent())
                     // TODO: Member 연결되면 리펙토링
-                    .nickname(board.getMember() == null ? "없는 사용자" : board.getMember().getNickname())
+                    .member(board.getMember() == null ? new Member() : board.getMember())
+                    .replyResponseDtos(replyResponseDtos)
                     .build();
         }
     }
