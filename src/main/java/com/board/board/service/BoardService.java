@@ -13,6 +13,6 @@ public interface BoardService {
     Page<BoardDto.ListResponse> findAll(Pageable pageable, String keyword);
     Page<BoardDto.ListResponse> findAllByCategory(Category category, Pageable pageable, String keyword);
     BoardDto.DetailResponse findById(Long id);
-    Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail);
+    Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail, Principal principal);
     void deleteById(Long id, Principal principal);
 }
