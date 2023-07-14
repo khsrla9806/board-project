@@ -32,7 +32,7 @@ public class ReplyController {
         return "redirect:/board/" + replyRequestDto.getBoardId();
     }
 
-    @PostMapping("/{replyId}/delete")
+    @PostMapping("/reply/delete/{replyId}")
     public String removeReply(@PathVariable Long replyId, Long boardId) {
         replyService.removeReply(replyId);
 
