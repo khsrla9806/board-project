@@ -1,47 +1,60 @@
 package com.board.response.service.impl;
 
-import com.board.response.dto.CommonResult;
-import com.board.response.dto.ListResult;
-import com.board.response.dto.SingleResult;
+import com.board.response.dto.CommonResponse;
 import com.board.response.service.ResponseService;
 import com.board.response.type.ErrorCode;
+import com.board.response.type.SuccessCode;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static com.board.response.type.SuccessCode.SUCCESS;
 
 @Service
 public class ResponseServiceImpl implements ResponseService {
 
     @Override
-    public <T> SingleResult<T> getSingleResult(T data) {
-        SingleResult<T> result = SingleResult.<T>builder()
+    public <T> CommonResponse<T> success(T data, SuccessCode successCode) {
+        return CommonResponse.<T>builder()
+                .success(true)
+                .code(successCode.getCode())
+                .message(successCode.getMessage())
                 .data(data)
                 .build();
-
-        result.update(true, SUCCESS.getCode(), SUCCESS.getMessage());
-        return result;
     }
 
     @Override
-    public <T> ListResult<T> getListResult(List<T> list) {
-        ListResult<T> result = ListResult.<T>builder()
-                .data(list)
+    public <T> CommonResponse<List<T>> successList(List<T> data, SuccessCode successCode) {
+        return CommonResponse.<List<T>>builder()
+                .success(true)
+                .code(successCode.getCode())
+                .message(successCode.getMessage())
+                .data(data)
                 .build();
-
-        result.update(true, SUCCESS.getCode(), SUCCESS.getMessage());
-        return result;
     }
 
     @Override
-    public CommonResult getSuccessResult() {
-        return new CommonResult(true, SUCCESS.getCode(), SUCCESS.getMessage());
+    public CommonResponse<?> successWithNoContent(SuccessCode successCode) {
+        return CommonResponse.builder()
+                .success(true)
+                .code(successCode.getCode())
+                .message(successCode.getMessage())
+                .build();
     }
 
     @Override
-    public CommonResult getFailResult(ErrorCode errorCode) {
-        return new CommonResult(false, errorCode.toString(), errorCode.getMessage());
+    public <T> CommonResponse<T> failure(ErrorCode errorCode) {
+        return CommonResponse.<T>builder()
+                .success(false)
+                .code(errorCode.toString())
+                .message(errorCode.getMessage())
+                .build();
     }
 
+    @Override
+    public <T> CommonResponse<List<T>> failureList(ErrorCode errorCode) {
+        return CommonResponse.<List<T>>builder()
+                .success(false)
+                .code(errorCode.toString())
+                .message(errorCode.getMessage())
+                .build();
+    }
 }

@@ -2,8 +2,8 @@ package com.board.member.controller;
 
 import com.board.member.dto.MemberRegistration;
 import com.board.member.service.MemberService;
-import com.board.response.dto.CommonResult;
-import com.board.response.dto.SingleResult;
+import com.board.response.dto.CommonResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,20 +19,21 @@ import javax.validation.Valid;
  */
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/member")
+@RequestMapping("/members")
 public class MemberController {
 
     private final MemberService memberService;
 
     @GetMapping("/register")
     public String register() {
-        return "member/register";
+        return "members/register";
     }
 
     @PostMapping("/register")
     public String register(@Valid MemberRegistration request) {
-        SingleResult<Long> result = memberService.register(request);
-        return "member/register";
+        CommonResponse<Long> result = memberService.register(request);
+        return "members/register";
+
     }
 
     @GetMapping("/authConfirm")
@@ -40,9 +41,8 @@ public class MemberController {
         Long id = Long.valueOf(request.getParameter("id"));
         String emailAuthToken = request.getParameter("emailAuthToken");
 
-        CommonResult commonResult = memberService.authConfirm(id, emailAuthToken);
-        model.addAttribute("result", commonResult);
+        CommonResponse<?> result = memberService.authConfirm(id, emailAuthToken);
+        model.addAttribute("result", result);
 
-        return "member/authConfirm";
     }
 }

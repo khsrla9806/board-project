@@ -1,6 +1,6 @@
 package com.board.exception;
 
-import com.board.response.dto.CommonResult;
+import com.board.response.dto.CommonResponse;
 import com.board.response.service.ResponseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,42 +21,26 @@ public class GlobalExceptionHandler {
     private final ResponseService responseService;
 
     @ExceptionHandler(MemberException.class)
-    public ResponseEntity<?> handleMemberException(MemberException e) {
+    public CommonResponse<?> handleMemberException(MemberException e) {
         log.error("{} is occurred. {}", e.getErrorCode(), e.getErrorMessage());
-
-        CommonResult result = responseService.getFailResult(e.getErrorCode());
-        HttpStatus httpStatus = e.getHttpStatus();
-
-        return ResponseEntity.status(httpStatus).body(result);
+        return responseService.failure(e.getErrorCode());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+    public CommonResponse<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
         log.error("MethodArgumentNotValidException is occurred.", e);
-
-        CommonResult result = responseService.getFailResult(INVALID_REQUEST);
-        HttpStatus httpStatus = INVALID_REQUEST.getHttpStatus();
-
-        return ResponseEntity.status(httpStatus).body(result);
+        return responseService.failure(INVALID_REQUEST);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> handleDataIntegrityViolationException(DataIntegrityViolationException e){
+    public CommonResponse<?> handleDataIntegrityViolationException(DataIntegrityViolationException e){
         log.error("DataIntegrityViolationException is occurred.", e);
-
-        CommonResult result = responseService.getFailResult(CONSTRAINT_VIOLATION);
-        HttpStatus httpStatus = CONSTRAINT_VIOLATION.getHttpStatus();
-
-        return ResponseEntity.status(httpStatus).body(result);
+        return responseService.failure(CONSTRAINT_VIOLATION);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception e){
+    public CommonResponse<?> handleException(Exception e){
         log.error("Exception is occurred.", e);
-
-        CommonResult result = responseService.getFailResult(INTERNAL_SERVER_ERROR);
-        HttpStatus httpStatus = INTERNAL_SERVER_ERROR.getHttpStatus();
-
-        return ResponseEntity.status(httpStatus).body(result);
+        return responseService.failure(INTERNAL_SERVER_ERROR);
     }
 }
