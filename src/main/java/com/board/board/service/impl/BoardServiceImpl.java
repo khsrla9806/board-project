@@ -23,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
@@ -65,6 +67,11 @@ public class BoardServiceImpl implements BoardService {
             String fullPath = ImageUtils.getFullPath(storeThumbnailName);
             try {
                 thumbnail.transferTo(new File(fullPath));
+                /* 썸네일 수정 시 기존 썸네일 이미지는 파일에서 삭제 */
+                if (board.getThumbnail() != null && !board.getThumbnail().isBlank()) {
+                    String beforeImageFullPath = ImageUtils.getFullPath(board.getThumbnail());
+                    Files.delete(Paths.get(beforeImageFullPath));
+                }
                 board.setThumbnail(storeThumbnailName);
             } catch (IOException e) {
                 throw new BoardException(ErrorCode.FILE_CANNOT_BE_PROCESSED);
