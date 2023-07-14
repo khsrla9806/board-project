@@ -120,6 +120,14 @@ public class BoardController {
         }
         return PRO.getCategoryTitle();
     }
+
+    @PostMapping("/delete/{id}")
+    public String deleteBoard(Principal principal, @PathVariable Long id) {
+        checkAuthentication(principal);
+        boardService.deleteById(id, principal);
+
+        return "redirect:/";
+    }
   
     @ResponseBody
     @GetMapping("/image/{filename}")
