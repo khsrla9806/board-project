@@ -14,7 +14,7 @@ public class ReplyController {
 
     private final ReplyService replyService;
 
-    @GetMapping("/{boardId}")
+    // @GetMapping("/{boardId}")
     public String ListBoardAndReply(@PathVariable Long boardId, ModelMap model) {
         ReplyDto.BoardWithReplyDto boardWithReplies = replyService.findBoardWithReplies(boardId);
 

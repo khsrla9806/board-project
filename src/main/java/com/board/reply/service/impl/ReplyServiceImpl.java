@@ -37,7 +37,7 @@ public class ReplyServiceImpl implements ReplyService {
 
         return ReplyDto.BoardWithReplyDto.builder()
                 .id(board.getId())
-                .memberId(board.getMember_id())
+                .memberId(board.getMember().getId())
                 .createdAt(board.getCreatedAt())
                 .title(board.getTitle())
                 .content(board.getContent())
