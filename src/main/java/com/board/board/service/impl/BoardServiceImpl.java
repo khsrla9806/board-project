@@ -110,11 +110,19 @@ public class BoardServiceImpl implements BoardService {
     @Override
     public BoardDto.DetailResponse findById(Long id) {
         Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다.")); // TODO: CustomException 변경
+                .orElseThrow(() -> new BoardException(ErrorCode.ENTITY_NOT_FOUND));
+        checkStatusOfBoard(board);
 
         List<Reply> replies = replyRepository.findByBoardIdAndParentIsNull(board.getId());
 
-        return BoardDto.DetailResponse.fromEntity(board, replies); // TODO: 댓글 사용자 정보 추가해야 함
+        return BoardDto.DetailResponse.fromEntity(board, replies);
+    }
+
+    /** 게시글이 ACTIVE 상태인지 확인 */
+    private void checkStatusOfBoard(Board board) {
+        if (board.getStatus() != ACTIVE) {
+            throw new BoardException(ErrorCode.ENTITY_NOT_FOUND);
+        }
     }
 
     @Override
