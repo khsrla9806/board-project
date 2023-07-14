@@ -25,6 +25,12 @@ public class GlobalExceptionHandler {
         return responseService.failure(e.getErrorCode());
     }
 
+    @ExceptionHandler(BoardException.class)
+    public CommonResponse<?> handleMemberException(BoardException e) {
+        log.error("{} is occurred. {}", e.getErrorCode(), e.getErrorMessage());
+        return responseService.failure(e.getErrorCode());
+    }
+
     @ExceptionHandler(UsernameNotFoundException.class)
     public CommonResponse<?> handlerUsernameNotFoundException(UsernameNotFoundException e) {
         log.error("UsernameNotFoundException is occurred.", e);
