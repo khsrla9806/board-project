@@ -28,7 +28,10 @@
         <span class="col button-box-right">
           <span th:if="${#authentication.isAuthenticated() && #authentication.getName() == board.member.email}">
             <a href="#" class="btn btn-outline-success btn-sm">수정</a>
-            <a href="#" class="btn btn-outline-danger btn-sm">삭제</a>
+            <form th:action="@{/board/delete/{boardId}(boardId=${board.id})}" method="post" class="delete-form">
+              <a onclick="checkDelete()" class="btn btn-outline-danger btn-sm">삭제</a>
+              <button id="delete-button" hidden></button>
+            </form>
           </span>
           <a href="#" class="btn btn-danger btn-sm">신고</a>
         </span>
@@ -168,12 +171,18 @@
       <!-- Reply Content END -->
     </div>
   </div>
-  <script>
+  <script th:inline="javascript">
       function showReplyForm(element, replyId) {
 
           const replyForm = element.parentElement.parentElement.nextElementSibling;
 
           replyForm.style.display = (replyForm.style.display === 'none') ? 'block' : 'none';
+      }
+
+      function checkDelete() {
+          if (confirm("정말 게시글을 삭제하시겠습니까?")) {
+              document.getElementById("delete-button").click();
+          }
       }
   </script>
 </body>
