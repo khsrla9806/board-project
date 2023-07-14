@@ -34,6 +34,11 @@ public class MemberController {
         return "members/register";
     }
 
+    @RequestMapping("/login")
+    public String login() {
+        return "members/login";
+    }
+
     @GetMapping("/authConfirm")
     public String emailAuth(Model model, HttpServletRequest request) {
         Long id = Long.valueOf(request.getParameter("id"));
