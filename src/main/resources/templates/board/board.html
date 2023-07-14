@@ -27,7 +27,8 @@
         </span>
         <span class="col button-box-right">
           <span th:if="${#authentication.isAuthenticated() && #authentication.getName() == board.member.email}">
-            <a href="#" class="btn btn-outline-success btn-sm">수정</a>
+            <a th:href="@{/board/updateForm/{boardId}(boardId=${board.id})}"
+               class="btn btn-outline-success btn-sm">수정</a>
             <form th:action="@{/board/delete/{boardId}(boardId=${board.id})}" method="post" class="delete-form">
               <a onclick="checkDelete()" class="btn btn-outline-danger btn-sm">삭제</a>
               <button id="delete-button" hidden></button>
