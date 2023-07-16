@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import static com.board.response.type.ErrorCode.*;
 
@@ -26,7 +27,19 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BoardException.class)
-    public CommonResponse<?> handleMemberException(BoardException e) {
+    public CommonResponse<?> handleBoardException(BoardException e) {
+        log.error("{} is occurred. {}", e.getErrorCode(), e.getErrorMessage());
+        return responseService.failure(e.getErrorCode());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public CommonResponse<?> handleUploadFileException(MaxUploadSizeExceededException e) {
+        log.error("MaxUploadSizeExceededException is occurred.", e);
+        return responseService.failure(FILE_MAXIMUM_SIZE);
+    }
+
+    @ExceptionHandler(ReportException.class)
+    public CommonResponse<?> handleReportException(ReportException e) {
         log.error("{} is occurred. {}", e.getErrorCode(), e.getErrorMessage());
         return responseService.failure(e.getErrorCode());
     }
