@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <link th:href="@{/css/board.css}" href="../css/board.css" rel="stylesheet">
@@ -66,9 +66,10 @@
                   <label for="replyContent" class="m-2">
                     <h3>댓글</h3>
                   </label>
-                  <textarea class="form-control h-25" rows="3" id="replyContent" name="content"></textarea>
+                  <textarea class="form-control h-25" rows="3" id="replyContent" name="content" oninput="toggleSubmitButton('replyContent', 'submitButton')">
+                  </textarea>
                   <div class="col-lg-12 col-sm-12 text-lg-end text-end">
-                    <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit">
+                    <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit" id="submitButton" disabled>
                       작성
                     </button>
                   </div>
@@ -82,21 +83,31 @@
                   <div class="user d-flex flex-row align-items-center">
                     <img src="https://i.imgur.com/hczKIze.jpg" width="30" class="user-img rounded-circle mr-2">
                     <div class="d-flex flex-column m-lg-2">
-                      <small class="font-weight-bold text-primary" th:text="${reply.memberId}">
-                        회원 이름
-                      </small>
-                      <p class="font-weight-bold" th:text="${reply.content}">
+                      <div class="d-flex flex-row">
+                        <small class="font-weight-bold text-primary mx-2 align-self-start" th:text="${reply.member.nickname}">
+                          회원 이름
+                        </small>
+                        <small class="font-weight-bold align-self-start" th:text="${#temporals.format(reply.createdAt, 'yyyy-MM-dd HH:mm')}">
+                          댓글 작성 날짜
+                        </small>
+                      </div>
+                      <p class="font-weight-bold text-md-start" th:text="${reply.content}">
                         댓글 내용
                       </p>
                     </div>
                   </div>
                 </div>
-                <div class="action d-flex justify-content-between mt-2 mb-2 align-items-center">
-                  <div class="reply px-4">
+                <div class="action d-flex justify-content-between align-items-center mt-2 mb-2">
+                  <div class="d-flex align-items-center reply">
                     <i class="fa-regular fa-comment-dots fa-sm" style="color: #000000;"></i>
-                    <small th:onclick="'showReplyForm(this)'">
-                      답글 쓰기
+                    <small class="mx-2" onclick="showReplyForm(this)">
+                      답글쓰기
                     </small>
+                    <form th:action="@{/board/{boardId}/reply/delete/{replyId}(boardId=${board.id}, replyId=${reply.id})}" method="post">
+                      <small th:if="${#authentication.isAuthenticated() && #authentication.getName() == reply.member.email}" onclick="checkReply(this)">
+                        댓글삭제
+                      </small>
+                    </form>
                   </div>
                 </div>
 
@@ -107,9 +118,9 @@
                       <input type="hidden" name="boardId" th:value="${board.id}">
                       <input type="hidden" name="memberId" th:value="${board.member.id}">
                       <input type="hidden" name="parentId" th:value="${reply.id}">
-                      <textarea class="form-control h-25" rows="3" name="content"></textarea>
+                      <textarea class="form-control h-25" rows="3" name="content" id="childReplyContent" oninput="toggleSubmitButton('childReplyContent', 'childReplySubmitButton')"></textarea>
                       <div class="col-lg-12 col-sm-12 text-lg-end text-end">
-                        <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit">
+                        <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit" id="childReplySubmitButton" disabled>
                           작성
                         </button>
                       </div>
@@ -118,54 +129,42 @@
                 </div>
 
                 <!-- 대댓글 리스트 -->
-                <div class="card p-3 bg-light" th:each="childReply : ${reply.children}"
-                     th:if="${!#arrays.isEmpty(reply.children)}">
-                  <div>
-                    <div class="user d-flex flex-row align-items-center">
-                      <i class="fa-solid fa-reply fa-rotate-180 fa-lg"
-                         style="color: #000000; --fa-li-margin: 2em;"></i>
-                      <img src="https://i.imgur.com/hczKIze.jpg" width="30"
-                           class="user-img rounded-circle mr-2">
-                      <div class="d-flex flex-column m-lg-2">
-                        <small class="font-weight-bold text-primary" th:text="${childReply.memberId}">
+                <div class="card p-3 bg-light" th:each="childReply : ${reply.children}" th:if="${!#arrays.isEmpty(reply.children)}">
+                  <div class="user d-flex flex-row align-items-center">
+                    <i class="fa-solid fa-reply fa-rotate-180 fa-lg" style="color: #000000; --fa-li-margin: 2em;"></i>
+                    <img src="https://i.imgur.com/hczKIze.jpg" width="30" class="user-img rounded-circle mr-2">
+                    <div class="d-flex flex-column m-lg-2">
+                      <div class="d-flex flex-row m-lg-2">
+                        <small class="font-weight-bold text-primary mx-2" th:text="${childReply.member.nickname}">
                           대댓글 회원
                         </small>
-                        <small th:text="${reply.memberId}">
-                          태깅유저(대상 회원)
+                        <small class="font-weight-bold" th:text="${#temporals.format(childReply.createdAt, 'yyyy-MM-dd HH:mm')}">
+                          대댓글 작성 날짜
                         </small>
-                        <p class="font-weight-bold" th:text="${childReply.content}">
+                      </div>
+                      <div class="d-flex flex-row align-items-center">
+                        <p class="rounded bg-primary bg-gradient text-white" th:if="${reply.member.nickname != childReply.member.nickname}" th:text="'@' + ${reply.member.nickname}">
+                          태깅유저(대상 회원)
+                        </p>
+                        <p class="font-weight-bold text-md-start" th:text="${childReply.content}">
                           대댓글 내용
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div class="action d-flex justify-content-between mt-2 align-items-center">
-                    <div class="reply px-4">
-                      <i class="fa-regular fa-comment-dots fa-sm" style="color: #000000;"></i>
-                      <small th:onclick="'showReplyForm(this)'">
-                        답글 쓰기
-                      </small>
-                    </div>
-                  </div>
-
-                  <!-- 대댓글의 댓글 리스트 -->
-                  <div class="bg-light p-2" style="display: none;">
-                    <div class="align-items-center">
-                      <form th:action="@{/board/reply/new}" method="post">
-                        <input type="hidden" name="boardId" th:value="${board.id}">
-                        <input type="hidden" name="memberId" th:value="${board.member.id}">
-                        <input type="hidden" name="parentId" th:value="${childReply.id}">
-                        <textarea class="form-control h-25" rows="3" name="content"></textarea>
-                        <div class="col-lg-12 col-sm-12 text-lg-end text-end">
-                          <button class="btn align-bottom btn-primary btn-sm shadow-none mt-2 mb-2" type="submit">
-                            작성
-                          </button>
-                        </div>
+                  <div class="action d-flex align-items-center mt-2">
+                    <div class="reply">
+                      <form th:action="@{/board/{boardId}/reply/delete/{replyId}(boardId=${board.id}, replyId=${childReply.id})}" method="post">
+                        <small th:if="${#authentication.isAuthenticated() && #authentication.getName() == childReply.member.email}" onclick="checkReply(this)">
+                          <i class="fa-regular fa-comment-dots fa-sm" style="color: #000000;"></i>
+                          댓글삭제
+                        </small>
                       </form>
                     </div>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -175,11 +174,26 @@
     </div>
   </div>
   <script th:inline="javascript">
-      function showReplyForm(element, replyId) {
+
+      function showReplyForm(element) {
 
           const replyForm = element.parentElement.parentElement.nextElementSibling;
 
           replyForm.style.display = (replyForm.style.display === 'none') ? 'block' : 'none';
+      }
+
+      function toggleSubmitButton(textareaId, buttonId) {
+        const textarea = document.getElementById(textareaId);
+        const button = document.getElementById(buttonId);
+
+        button.disabled = textarea.value.trim() === '';
+      }
+
+      function checkReply(element) {
+        if(confirm("정말 댓글을 삭제하시겠습니까?")) {
+          const form = element.closest('form');
+          form.submit();
+        }
       }
 
       function checkDelete() {
