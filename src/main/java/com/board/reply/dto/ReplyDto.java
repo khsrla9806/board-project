@@ -1,6 +1,7 @@
 package com.board.reply.dto;
 
 import com.board.board.domain.Board;
+import com.board.member.domain.Member;
 import com.board.reply.domain.Reply;
 import lombok.*;
 
@@ -9,6 +10,8 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.board.board.dto.BoardDto.MemberDto;
 
 public class ReplyDto {
 
@@ -25,17 +28,17 @@ public class ReplyDto {
         private Long parentId;
 
         @NotNull
-        private Long memberId;      // TODO : Member 와 연관관계 설정
+        private Long memberId;
 
         @NotBlank
         private String content;
 
-        public Reply toEntity(Board board, Reply parenReply, Long userId) {
+        public Reply toEntity(Board board, Reply parenReply, Member member) {
             return Reply.builder()
                     .content(content)
                     .parent(parenReply)
                     .board(board)
-                    .memberId(userId)
+                    .member(member)
                     .build();
         }
     }
@@ -48,8 +51,9 @@ public class ReplyDto {
         private Long id;
         private String content;
         private Long parentId;
-        private Long boardId;
-        private Long memberId;
+        private MemberDto member;
+        private Board board;
+        private LocalDateTime createdAt;
         private List<ReplyResponseDto> children;
 
         public static ReplyResponseDto fromEntity(Reply reply) {
@@ -67,8 +71,9 @@ public class ReplyDto {
                     .parentId(
                             reply.getParent() != null ? reply.getParent().getId() : null
                     )
-                    .boardId(reply.getBoard().getId())
-                    .memberId(reply.getMemberId())
+                    .member(MemberDto.fromEntity(reply.getMember()))
+                    .board(reply.getBoard())
+                    .createdAt(reply.getCreatedAt())
                     .children(children)
                     .build();
 
