@@ -27,6 +27,8 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND(HttpStatus.BAD_REQUEST, "요청된 데이터를 찾을 수 없습니다."),
     UNAUTHENTICATED_REQUEST(HttpStatus.UNAUTHORIZED, "인증되지 않은 사용자의 요청입니다."),
     FILE_CANNOT_BE_PROCESSED(HttpStatus.BAD_REQUEST, "처리할 수 없는 파일입니다."),
+    FILE_MAXIMUM_SIZE(HttpStatus.BAD_REQUEST, "파일 크키는 1MB 이하여야 합니다."),
+    ALREADY_REPORTED(HttpStatus.BAD_REQUEST, "이미 신고한 게시글입니다."),
 
     MISMATCH_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다."),
     ;
