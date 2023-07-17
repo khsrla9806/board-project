@@ -1,7 +1,9 @@
 package com.board.member.service;
 
+import com.board.global.response.dto.CommonResponse;
 import com.board.member.dto.MemberRegistration;
-import com.board.response.dto.CommonResponse;
+import com.board.member.dto.MemberUpdate;
+import com.board.member.dto.PasswordUpdate;
 
 public interface MemberService {
 
@@ -10,6 +12,9 @@ public interface MemberService {
 
     // 이메일 인증
     CommonResponse<?> authConfirm(Long id, String emailAuthToken);
+
+    // 마이페이지 확인
+    CommonResponse<?> getMemberDetailsByEmail(String email);
 
     // 이름 유효성 확인
     CommonResponse<?> validateUsername(String username);
@@ -28,4 +33,13 @@ public interface MemberService {
 
     // 비밀번호 일치 확인
     CommonResponse<?> validateConfirmPassword(String password, String confirmPassword);
+
+    // 입력받은 비밀번호와 DB에 저장된 비밀번호 일치 확인
+    CommonResponse<?> validateCurrentPassword(String email, String password);
+
+    // 회원 정보 변경
+    CommonResponse<?> updateMember(String email, MemberUpdate.Request request);
+
+    // 비밀번호 변경
+    CommonResponse<?> updatePassword(String email, PasswordUpdate.Request request);
 }

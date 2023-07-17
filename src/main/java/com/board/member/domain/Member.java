@@ -1,5 +1,6 @@
 package com.board.member.domain;
 
+import com.board.member.dto.MemberUpdate;
 import com.board.member.type.MemberRole;
 import com.board.member.type.MemberStatus;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,15 @@ public class Member extends BaseEntity{
 
     public void updateMemberStatus(MemberStatus memberStatus) {
         this.memberStatus = memberStatus;
+    }
+
+    public void updateMember(MemberUpdate.Request request) {
+        this.nickname = request.getNickname();
+        this.phone = request.getPhone();
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
     }
 
 }

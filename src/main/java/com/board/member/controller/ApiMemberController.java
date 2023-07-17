@@ -1,12 +1,17 @@
-package com.board.member.controller.api;
+package com.board.member.controller;
 
+import com.board.global.response.dto.CommonResponse;
+import com.board.member.dto.MemberUpdate;
+import com.board.member.dto.PasswordUpdate;
 import com.board.member.service.MemberService;
-import com.board.response.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.security.Principal;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +25,6 @@ public class ApiMemberController {
         CommonResponse<?> result = memberService.validateUsername(username);
         return ResponseEntity.ok(result);
     }
-
 
     @PostMapping("/validateNickname")
     public ResponseEntity<?> validateNickName(String nickname) {
@@ -49,6 +53,27 @@ public class ApiMemberController {
     @PostMapping("/validateConfirmPassword")
     public ResponseEntity<?> validateConfirmPassword(String password, String confirmPassword) {
         CommonResponse<?> result = memberService.validateConfirmPassword(password, confirmPassword);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/validateCurrentPassword")
+    public ResponseEntity<?> validateCurrentPassword(String password, Principal principal) {
+        String email = principal.getName();
+        CommonResponse<?> result = memberService.validateCurrentPassword(email, password);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/updateMember")
+    public ResponseEntity<?> updateMember(Principal principal, @RequestBody MemberUpdate.Request request) {
+        String email = principal.getName();
+        CommonResponse<?> result = memberService.updateMember(email, request);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/updatePassword")
+    private ResponseEntity<?> updatePassword(Principal principal, @RequestBody PasswordUpdate.Request request) {
+        String email = principal.getName();
+        CommonResponse<?> result = memberService.updatePassword(email, request);
         return ResponseEntity.ok(result);
     }
 }
