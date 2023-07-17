@@ -1,6 +1,6 @@
-package com.board.exception;
+package com.board.global.exception;
 
-import com.board.response.type.ErrorCode;
+import com.board.global.response.type.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
