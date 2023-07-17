@@ -40,6 +40,10 @@
     min-height: 200px;
 }
 
+.delete-form {
+    display: inline;
+}
+
 /* Reply 설정 시작 */
 
 body {

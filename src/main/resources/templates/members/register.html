@@ -90,9 +90,15 @@
             </form>
         </div>
     </div>
+
+    <div class="text-center mt-3">
+        <button class="btn btn-secondary" onclick="goBack()">뒤로 가기</button>
+    </div>
+
     <footer class="my-3 text-center text-small">
         <p class="mb-1">&copy; FCBE5-4</p>
     </footer>
+
 </div>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script>
@@ -325,6 +331,10 @@
             // 에러 처리
         });
     });
+
+    function goBack() {
+        window.history.back();
+    }
 
 </script>
 </body>

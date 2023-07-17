@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8">
   <link th:href="@{/css/board.css}" href="../css/board.css" rel="stylesheet">
@@ -26,8 +26,14 @@
           <a href="javascript:history.back()" class="btn btn-outline-dark btn-sm">뒤로가기</a>
         </span>
         <span class="col button-box-right">
-          <a href="#" class="btn btn-outline-success btn-sm">수정</a>
-          <a href="#" class="btn btn-outline-danger btn-sm">삭제</a>
+          <span th:if="${#authentication.isAuthenticated() && #authentication.getName() == board.member.email}">
+            <a th:href="@{/board/updateForm/{boardId}(boardId=${board.id})}"
+               class="btn btn-outline-success btn-sm">수정</a>
+            <form th:action="@{/board/delete/{boardId}(boardId=${board.id})}" method="post" class="delete-form">
+              <a onclick="checkDelete()" class="btn btn-outline-danger btn-sm">삭제</a>
+              <button id="delete-button" hidden></button>
+            </form>
+          </span>
           <a href="#" class="btn btn-danger btn-sm">신고</a>
         </span>
       </div>
@@ -166,12 +172,18 @@
       <!-- Reply Content END -->
     </div>
   </div>
-  <script>
+  <script th:inline="javascript">
       function showReplyForm(element, replyId) {
 
           const replyForm = element.parentElement.parentElement.nextElementSibling;
 
           replyForm.style.display = (replyForm.style.display === 'none') ? 'block' : 'none';
+      }
+
+      function checkDelete() {
+          if (confirm("정말 게시글을 삭제하시겠습니까?")) {
+              document.getElementById("delete-button").click();
+          }
       }
   </script>
 </body>

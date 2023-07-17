@@ -33,7 +33,12 @@ public class BoardDto {
     @Setter
     public static class UpdateRequest {
         private Long id;
+        @NotBlank(message = "제목은 필수 입력 값입니다.")
+        @Length(max = 255, message = "제목은 255자를 넘어갈 수 없습니다.")
         private String title;
+
+        @NotBlank(message = "내용은 필수 입력 값입니다.")
+        @Length(max = 20000, message = "본문은 20,000자를 넘어갈 수 없습니다.")
         private String content;
     }
 
@@ -46,7 +51,7 @@ public class BoardDto {
         private String title;
         private String content;
         private String thumbnail;
-        private String nickname;
+        private MemberDto member; // 만감한 정보는 제외
 
         public static ListResponse fromEntity(Board board) {
             return ListResponse.builder()
@@ -55,8 +60,7 @@ public class BoardDto {
                     .title(board.getTitle())
                     .content(board.getContent())
                     .thumbnail(board.getThumbnail())
-                    // TODO: Member 연결되면 리펙토링
-                    .nickname(board.getMember() == null ? "없는 사용자" : board.getMember().getNickname())
+                    .member(MemberDto.fromEntity(board.getMember()))
                     .build();
         }
     }
@@ -68,7 +72,7 @@ public class BoardDto {
         private Category category;
         private String title;
         private String content;
-        private Member member;
+        private MemberDto member;
         private List<ReplyDto.ReplyResponseDto> replyResponseDtos;
 
         public static DetailResponse fromEntity(Board board, List<Reply> replies) {
@@ -81,9 +85,24 @@ public class BoardDto {
                     .category(board.getCategory())
                     .title(board.getTitle())
                     .content(board.getContent())
-                    // TODO: Member 연결되면 리펙토링
-                    .member(board.getMember() == null ? new Member() : board.getMember())
+                    .member(MemberDto.fromEntity(board.getMember()))
                     .replyResponseDtos(replyResponseDtos)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    public static class MemberDto {
+        private Long id;
+        private String nickname;
+        private String email;
+
+        public static MemberDto fromEntity(Member member) {
+            return MemberDto.builder()
+                    .id(member.getId())
+                    .nickname(member.getNickname())
+                    .email(member.getEmail())
                     .build();
         }
     }

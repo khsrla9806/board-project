@@ -1,15 +1,16 @@
 package com.board.board.controller;
 
+import com.board.board.domain.Board;
 import com.board.board.dto.BoardDto;
+import com.board.board.repository.BoardRepository;
 import com.board.board.service.BoardService;
 import com.board.board.type.BoardView;
 import com.board.board.utils.ImageUtils;
-import com.board.reply.dto.ReplyDto;
-import com.board.reply.service.ReplyService;
+import com.board.global.exception.BoardException;
+import com.board.global.response.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,8 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-
 import java.net.MalformedURLException;
+import java.security.Principal;
+
 import static com.board.board.type.Category.COMMON;
 import static com.board.board.type.Category.PRO;
 
@@ -33,10 +35,11 @@ import static com.board.board.type.Category.PRO;
 public class BoardController {
 
     private final BoardService boardService;
-    private final ReplyService replyService;
+    private final BoardRepository boardRepository;
 
     @GetMapping("/createForm")
-    public String boardCreateForm(Model model) {
+    public String boardCreateForm(Principal principal, Model model) {
+        checkAuthentication(principal);
         model.addAttribute("board", new BoardDto.CreateRequest());
 
         return "board/createForm";
@@ -44,15 +47,17 @@ public class BoardController {
 
     @PostMapping
     public String createBoard(
+            Principal principal,
             @Valid @ModelAttribute("board") BoardDto.CreateRequest dto,
             BindingResult bindingResult,
             @RequestParam MultipartFile thumbnail
     ) {
+        checkAuthentication(principal);
         if (bindingResult.hasErrors()) {
             return "board/createForm";
         }
 
-        Long boardId = boardService.save(dto, thumbnail);
+        Long boardId = boardService.save(dto, thumbnail, principal);
 
         return "redirect:/board/" + boardId;
     }
@@ -111,20 +116,65 @@ public class BoardController {
 
     private String getBoardCategory(BoardDto.DetailResponse boardDetailResponse) {
         String category = boardDetailResponse.getCategory().name();
-        if (category.equals("COMMON")) {
-            return "[새싹 회원 게시판]";
+        if (category.equals(COMMON.name())) {
+            return COMMON.getCategoryTitle();
         }
-        return "[우수 회원 게시판]";
+        return PRO.getCategoryTitle();
+    }
+
+    @PostMapping("/delete/{id}")
+    public String deleteBoard(Principal principal, @PathVariable Long id) {
+        checkAuthentication(principal);
+        boardService.deleteById(id, principal);
+
+        return "redirect:/";
+    }
+
+    @GetMapping("/updateForm/{id}")
+    public String boardUpdateForm(
+            Principal principal,
+            Model model,
+            @PathVariable Long id
+    ) {
+        checkAuthentication(principal);
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new BoardException(ErrorCode.ENTITY_NOT_FOUND));
+        model.addAttribute("board", board);
+
+        return "board/updateForm";
+    }
+
+    @PostMapping("/update")
+    public String updateBoard(
+            Principal principal,
+            @Valid @ModelAttribute("board") BoardDto.UpdateRequest dto,
+            BindingResult bindingResult,
+            @RequestParam MultipartFile thumbnail
+    ) {
+        checkAuthentication(principal);
+        if (bindingResult.hasErrors()) {
+            return "board/updateForm";
+        }
+
+        Long boardId = boardService.update(dto, thumbnail, principal);
+
+        return "redirect:/board/" + boardId;
     }
   
     @ResponseBody
     @GetMapping("/image/{filename}")
     public Resource thumbnailImage(@PathVariable String filename) throws MalformedURLException {
-        if (filename.equals("null")) {
-            return new UrlResource("classpath:/static/image/default.png");
+        if (filename.equals(BoardView.NULL)) {
+            return new UrlResource(BoardView.DEFAULT_IMAGE_URL);
         }
         String fullPath = ImageUtils.getFullPath(filename);
 
         return new UrlResource("file:" + fullPath);
+    }
+
+    private void checkAuthentication(Principal principal) throws BoardException {
+        if (principal == null) {
+            throw new BoardException(ErrorCode.UNAUTHENTICATED_REQUEST);
+        }
     }
 }

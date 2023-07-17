@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8">
   <link th:href="@{/css/bootstrap.min.css}" href="../css/boards.css" rel="stylesheet">
@@ -51,7 +51,7 @@
                    th:text="|[${board.category.name().equals('COMMON') ? '새싹 회원' : '우수 회원'} 게시판]|">게시글 카테고리</div>
               <h5 class="card-title ellipsis-title" th:text="${board.title}">게시글 제목</h5>
               <div class="ellipsis-content" th:utext="${board.content}">게시글 본문</div>
-              <div id="nickname" th:text="|작성자: ${board.nickname}|">작성자 닉네임</div>
+              <div id="nickname" th:text="|작성자: ${board.member.nickname}|">작성자 닉네임</div>
               <div class="card-body text-center">
                 <a th:href="@{/board/{id}(id=${board.id})}" class="btn btn-outline-dark">상세 보기</a>
               </div>

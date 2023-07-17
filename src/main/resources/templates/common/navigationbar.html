@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
   <!-- nav 영역 시작 -->
   <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light bg-light">
@@ -24,7 +24,12 @@
       </div>
       <div class="d-flex px-2">
         <!-- 추구 Principal 정보 받아서 로그인된 유저이면 {유저}님 안녕하세요. 이런 문구로 변경 -->
-        <button type="button" class="btn btn-outline-dark">로그인</button>
+        <a sec:authorize="!isAuthenticated()"
+                type="button" class="btn btn-outline-dark btn-sm">로그인</a>
+        <a sec:authorize="isAuthenticated()" style="margin-right: 5px" href="/board/createForm"
+                type="button" class="btn btn-outline-primary btn-sm">게시글 작성</a>
+        <a sec:authorize="isAuthenticated()" th:text="|${#authentication.name}님 안녕하세요.|"
+                type="button" class="btn btn-outline-dark btn-sm">사용자</a>
       </div>
     </div>
   </nav>

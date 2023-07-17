@@ -6,10 +6,13 @@ import com.board.board.repository.BoardRepository;
 import com.board.board.service.BoardService;
 import com.board.board.type.Category;
 import com.board.board.utils.ImageUtils;
+import com.board.global.exception.BoardException;
+import com.board.global.exception.MemberException;
+import com.board.global.response.type.ErrorCode;
 import com.board.member.domain.Member;
 import com.board.member.repository.MemberRepository;
+import com.board.member.type.MemberRole;
 import com.board.reply.domain.Reply;
-import com.board.reply.dto.ReplyDto;
 import com.board.reply.repository.ReplyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,12 +23,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static com.board.board.type.Category.COMMON;
+import static com.board.board.type.Category.PRO;
 import static com.board.board.type.Status.ACTIVE;
+import static com.board.board.type.Status.DELETED;
 
 @RequiredArgsConstructor
 @Service
@@ -33,31 +40,50 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
     private final ReplyRepository replyRepository;
+    private final MemberRepository memberRepository;
 
+    @Override
     @Transactional
-    public Long save(BoardDto.CreateRequest dto, MultipartFile thumbnail) {
-        Member testSession = getSession(); // TODO: Member 세션 구현되면 이거 반드시 지우고 리팩토링 하기
+    public Long save(BoardDto.CreateRequest dto, MultipartFile thumbnail, Principal principal) {
+        Member member = memberRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.LOAD_USER_FAILED));
 
         Board board = new Board();
         board.setTitle(dto.getTitle());
         board.setContent(dto.getContent());
-        board.setCategory(COMMON); // TODO: Member 정보 받아서 새싹, 우수 회원 확인 후 입력
+        board.setCategory(getCategoryByMember(member));
         board.setStatus(ACTIVE);
-        board.setMember(testSession); // TODO: Member 정보 받아서 의존 관계 형성
+        board.setMember(member);
 
+        saveThumbnailFile(thumbnail, board);
+        boardRepository.save(board);
+
+        return board.getId();
+    }
+
+    private void saveThumbnailFile(MultipartFile thumbnail, Board board) {
         if (!thumbnail.isEmpty()) {
             String storeThumbnailName = getStoreThumbnailName(thumbnail.getOriginalFilename());
             String fullPath = ImageUtils.getFullPath(storeThumbnailName);
             try {
                 thumbnail.transferTo(new File(fullPath));
+                /* 썸네일 수정 시 기존 썸네일 이미지는 파일에서 삭제 */
+                if (board.getThumbnail() != null && !board.getThumbnail().isBlank()) {
+                    String beforeImageFullPath = ImageUtils.getFullPath(board.getThumbnail());
+                    Files.delete(Paths.get(beforeImageFullPath));
+                }
                 board.setThumbnail(storeThumbnailName);
             } catch (IOException e) {
-                throw new RuntimeException(); // TODO: 추후 CustomException 생성하여 처리
+                throw new BoardException(ErrorCode.FILE_CANNOT_BE_PROCESSED);
             }
         }
-        boardRepository.save(board);
+    }
 
-        return board.getId();
+    private Category getCategoryByMember(Member member) {
+        if (member.getMemberRole() == MemberRole.COMMON) {
+            return COMMON;
+        }
+        return PRO;
     }
 
     private String getStoreThumbnailName(String thumbnailOriginalName) {
@@ -66,6 +92,7 @@ public class BoardServiceImpl implements BoardService {
         return uuid + thumbnailOriginalName;
     }
 
+    @Override
     public Page<BoardDto.ListResponse> findAll(Pageable pageable, String keyword) {
         if (keyword != null && !keyword.isBlank()) {
             return boardRepository.findAllByKeyword(ACTIVE, keyword, pageable)
@@ -76,6 +103,7 @@ public class BoardServiceImpl implements BoardService {
         return boards.map(BoardDto.ListResponse::fromEntity);
     }
 
+    @Override
     public Page<BoardDto.ListResponse> findAllByCategory(Category category, Pageable pageable, String keyword) {
         if (keyword != null && !keyword.isBlank()) {
             return boardRepository.findAllByCategoryAndKeyword(category, ACTIVE, keyword, pageable)
@@ -86,29 +114,64 @@ public class BoardServiceImpl implements BoardService {
         return boards.map(BoardDto.ListResponse::fromEntity);
     }
 
+    @Override
     public BoardDto.DetailResponse findById(Long id) {
         Board board = boardRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다.")); // TODO: CustomException 변경
+                .orElseThrow(() -> new BoardException(ErrorCode.ENTITY_NOT_FOUND));
+        checkStatusOfBoard(board);
 
         List<Reply> replies = replyRepository.findByBoardIdAndParentIsNull(board.getId());
 
-        return BoardDto.DetailResponse.fromEntity(board, replies); // TODO: 댓글 사용자 정보 추가해야 함
+        return BoardDto.DetailResponse.fromEntity(board, replies);
     }
 
-    public Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail) {
-        return null;
+    /** 게시글이 ACTIVE 상태인지 확인 */
+    private void checkStatusOfBoard(Board board) {
+        if (board.getStatus() != ACTIVE) {
+            throw new BoardException(ErrorCode.ENTITY_NOT_FOUND);
+        }
     }
 
-    public void deleteById(Long id) {
+    @Override
+    @Transactional
+    public Long update(BoardDto.UpdateRequest dto, MultipartFile thumbnail, Principal principal) {
+        Member member = memberRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.LOAD_USER_FAILED));
 
+        Board board = boardRepository.findById(dto.getId())
+                .orElseThrow(() -> new BoardException(ErrorCode.ENTITY_NOT_FOUND));
+
+        checkOwnerOfBoardByMember(board, member);
+
+        saveThumbnailFile(thumbnail, board);
+        board.setTitle(dto.getTitle());
+        board.setContent(dto.getContent());
+
+        return board.getId();
     }
 
+    @Override
+    @Transactional
+    public void deleteById(Long id, Principal principal) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new BoardException(ErrorCode.ENTITY_NOT_FOUND));
+        Member member = memberRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new MemberException(ErrorCode.LOAD_USER_FAILED));
+        checkOwnerOfBoardByMember(board, member);
 
-    /* 여기 부터 지워야하는 테스트 영역입니다. */
-    private final MemberRepository memberRepository;
-
-    public Member getSession() {
-        return memberRepository.findById(1L).orElse(null);
+        deleteRepliesOfBoard(board);
+        board.setStatus(DELETED);
     }
-    /* 여기 까지 지워야하는 테스트 영역입니다. */
+
+    /** 게시글의 주인이 요청한 사용자가 맞는지 확인 */
+    private void checkOwnerOfBoardByMember(Board board, Member member) {
+        if (!board.getMember().getId().equals(member.getId())) {
+            throw new BoardException(ErrorCode.UNAUTHENTICATED_REQUEST);
+        }
+    }
+
+    /** 게시글 삭제 시에 해당 게시글에 관련된 댓글은 모두 삭제 */
+    private void deleteRepliesOfBoard(Board board) {
+        replyRepository.deleteAllByBoardId(board.getId());
+    }
 }
