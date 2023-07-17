@@ -6,12 +6,11 @@ import com.board.board.repository.BoardRepository;
 import com.board.board.service.BoardService;
 import com.board.board.type.BoardView;
 import com.board.board.utils.ImageUtils;
-import com.board.exception.BoardException;
-import com.board.response.type.ErrorCode;
+import com.board.global.exception.BoardException;
+import com.board.global.response.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-
 import java.net.MalformedURLException;
 import java.security.Principal;
 
@@ -174,7 +172,7 @@ public class BoardController {
         return new UrlResource("file:" + fullPath);
     }
 
-    private void checkAuthentication(Principal principal) {
+    private void checkAuthentication(Principal principal) throws BoardException {
         if (principal == null) {
             throw new BoardException(ErrorCode.UNAUTHENTICATED_REQUEST);
         }

@@ -49,10 +49,19 @@
                     </div>
                 </div>
 
+                <div th:if="error">
+                    <p id="valid" style="color: red; font-size:12px;"><a th:text="${exception}"></a></p>
+                </div>
+
                 <button class="btn btn-primary btn-lg btn-block" type="submit">로그인</button>
             </form>
         </div>
     </div>
+
+    <div class="text-center mt-3">
+        <p>아직 회원이 아니신가요? <a href="/members/register">회원가입</a></p>
+    </div>
+
     <footer class="my-3 text-center text-small">
         <p class="mb-1">&copy; FCBE5-4</p>
     </footer>

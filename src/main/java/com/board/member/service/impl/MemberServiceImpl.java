@@ -1,37 +1,38 @@
 package com.board.member.service.impl;
 
-import com.board.components.MailComponents;
-import com.board.exception.MemberException;
+import com.board.global.components.MailComponents;
+import com.board.global.exception.MemberException;
 import com.board.member.domain.EmailAuth;
 import com.board.member.domain.Member;
+import com.board.member.dto.MemberDto;
 import com.board.member.dto.MemberRegistration;
+import com.board.member.dto.MemberUpdate;
+import com.board.member.dto.PasswordUpdate;
 import com.board.member.repository.EmailAuthRepository;
 import com.board.member.repository.MemberRepository;
 import com.board.member.service.MemberService;
-import com.board.response.dto.CommonResponse;
-import com.board.response.service.ResponseService;
-import com.board.response.type.ErrorCode;
+import com.board.global.response.dto.CommonResponse;
+import com.board.global.response.service.ResponseService;
+import com.board.global.response.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.board.global.response.type.ErrorCode.*;
 import static com.board.member.type.MemberRole.COMMON;
 import static com.board.member.type.MemberStatus.ACTIVE;
 import static com.board.member.type.MemberStatus.INACTIVE;
-import static com.board.response.type.ErrorCode.*;
-import static com.board.response.type.SuccessCode.SUCCESS;
+import static com.board.global.response.type.SuccessCode.SUCCESS;
 
 @Service
 @RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService {
 
-    private final MemberRepository memberRepository;
     private final EmailAuthRepository emailAuthRepository;
+    private final MemberRepository memberRepository;
     private final ResponseService responseService;
-
     private final PasswordEncoder passwordEncoder;
-
     private final MailComponents mailComponents;
 
     @Override
@@ -79,6 +80,14 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
 
         return responseService.successWithNoContent(SUCCESS);
+    }
+
+    @Override
+    public CommonResponse<?> getMemberDetailsByEmail(String email) {
+        // 1. 유효성 검사
+        Member member = getMemberByEmail(email);
+
+        return responseService.success(MemberDto.fromEntity(member), SUCCESS);
     }
 
     @Override
@@ -136,6 +145,57 @@ public class MemberServiceImpl implements MemberService {
         return responseService.successWithNoContent(SUCCESS);
     }
 
+    @Override
+    public CommonResponse<?> validateCurrentPassword(String email, String password) {
+        // 1. 유효성 검사(이메일로 회원여부 확인 및 비밀번호 확인)
+        Member member = getMemberByEmail(email);
+        if (!validateCurrentPasswordMatch(password, member)) {
+            return responseService.failure(MISMATCH_PASSWORD);
+        }
+
+        return responseService.successWithNoContent(SUCCESS);
+    }
+
+    @Override
+    @Transactional
+    public CommonResponse<?> updateMember(String email, MemberUpdate.Request request) {
+        // 1. 유효성 검사(이메일로 회원여부 확인 및 닉네임, 전화번호 확인)
+        Member member = getMemberByEmail(email);
+        validateUpdateMember(request, member);
+
+        // 2. 회원정보 업데이트
+        member.updateMember(request);
+
+        return responseService.success(MemberUpdate.Response.fromEntity(member), SUCCESS);
+    }
+
+    @Override
+    @Transactional
+    public CommonResponse<?> updatePassword(String email, PasswordUpdate.Request request) {
+        String currentPassword = request.getCurrentPassword();
+        String newPassword = request.getNewPassword();
+        String newConfirmPassword = request.getNewConfirmPassword();
+
+        // 1. 유효성 검사(이메일로 회원여부 확인)
+        Member member = getMemberByEmail(email);
+
+        // 2. 유효성 검사(비밀번호)
+        if (!validateCurrentPasswordMatch(currentPassword, member)) {
+            return responseService.failure(MISMATCH_PASSWORD);
+        }
+
+        String passwordPattern = "^(?=.*[a-zA-Z])(?=.*\\d)(?!.*\\s).{8,16}$";
+        validatePatternMatch(passwordPattern, newPassword, INVALID_PASSWORD);
+
+        validatePassword(newConfirmPassword);
+        validatePasswordMatch(newPassword, newConfirmPassword);
+
+        // 3. 비밀번호 업데이트
+        member.updatePassword(passwordEncoder.encode(newPassword));
+
+        return responseService.success(MemberDto.fromEntity(member), SUCCESS);
+    }
+
     /** 닉네임 중복 확인 */
     private void validateNicknameNotExist(String nickname) {
         memberRepository.findByNickname(nickname).ifPresent(member -> {
@@ -157,8 +217,13 @@ public class MemberServiceImpl implements MemberService {
         });
     }
 
+    /** 현재 비밀번호 일치 여부 확인 */
+    private boolean validateCurrentPasswordMatch(String password, Member member) {
+        return passwordEncoder.matches(password, member.getPassword());
+    }
+
     /** 비밀번호 일치 여부 확인 */
-    public void validatePasswordMatch(String password, String confirmPassword) {
+    private void validatePasswordMatch(String password, String confirmPassword) {
         if (!password.equals(confirmPassword)) {
             throw new MemberException(MISMATCH_PASSWORD);
         }
@@ -166,48 +231,39 @@ public class MemberServiceImpl implements MemberService {
 
     /** 인증 이메일 전송 */
     private void sendAuthConfirmEmail(Member member, EmailAuth emailAuth) {
-        String title = "인증번호 안내";
-        String text =
-                "<p>" + member.getNickname() + "님 안녕하세요!<p>" +
-                        "<p>아래 메일인증 버튼을 클릭하여 회원가입을 완료해 주세요.</p>"
-                        + "<div><a target='_blank' href='http://localhost:8080/members/authConfirm?id=" + emailAuth.getId() + "&emailAuthToken=" + emailAuth.getEmailAuthToken() + "'> 메일 인증 </a><</div>";
+        String title = "[FCBE5-4] 인증번호 안내";
+        StringBuffer text = new StringBuffer();
+        text.append("<!DOCTYPE html>");
+        text.append("<html>");
+        text.append("<head>");
+        text.append("</head>");
+        text.append("<body>");
+        text.append(
+                " <div" +
+                        "	style=\"font-family: 'Apple SD Gothic Neo', 'sans-serif' !important; width: 400px; height: 600px; border-top: 4px solid #02b875; margin: 100px auto; padding: 30px 0; box-sizing: border-box;\">" +
+                        "	<h1 style=\"margin: 0; padding: 0 5px; font-size: 28px; font-weight: 400;\">" +
+                        "		<span style=\"font-size: 15px; margin: 0 0 10px 3px;\">FCBE5-4</span><br />" +
+                        "		<span style=\"color: #02b875\">메일인증</span> 안내입니다." +
+                        "	</h1>\n" +
+                        "	<p style=\"font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px;\">" +
+                        member.getNickname() +
+                        "		님 안녕하세요.<br />" +
+                        "		아래 <b style=\"color: #02b875\">'메일 인증'</b> 버튼을 클릭하여 회원가입을 완료해 주세요.<br />" +
+                        "		감사합니다." +
+                        "	</p>" +
+                        "	<a style=\"color: #FFF; text-decoration: none; text-align: center;\"" +
+                        "	href=\"http://localhost:8080/members/auth/confirm?id=" + emailAuth.getId() + "&emailAuthToken=" + emailAuth.getEmailAuthToken() + "\" target=\"_blank\">" +
+                        "		<p" +
+                        "			style=\"display: inline-block; width: 210px; height: 45px; margin: 30px 5px 40px; background: #02b875; line-height: 45px; vertical-align: middle; font-size: 16px;\">" +
+                        "			메일 인증</p>" +
+                        "	</a>" +
+                        "	<div style=\"border-top: 1px solid #DDD; padding: 5px;\"></div>" +
+                        " </div>"
+        );
+        text.append("</body>");
+        text.append("</html>");
 
-        // TODO 메일 인증 수정
-
-//        StringBuffer emailcontent = new StringBuffer();
-//        emailcontent.append("<!DOCTYPE html>");
-//        emailcontent.append("<html>");
-//        emailcontent.append("<head>");
-//        emailcontent.append("</head>");
-//        emailcontent.append("<body>");
-//        emailcontent.append(
-//                " <div" 																																																	+
-//                        "	style=\"font-family: 'Apple SD Gothic Neo', 'sans-serif' !important; width: 400px; height: 600px; border-top: 4px solid #02b875; margin: 100px auto; padding: 30px 0; box-sizing: border-box;\">"		+
-//                        "	<h1 style=\"margin: 0; padding: 0 5px; font-size: 28px; font-weight: 400;\">"																															+
-//                        "		<span style=\"font-size: 15px; margin: 0 0 10px 3px;\">YG1110 BLOG</span><br />"																													+
-//                        "		<span style=\"color: #02b875\">메일인증</span> 안내입니다."																																				+
-//                        "	</h1>\n"																																																+
-//                        "	<p style=\"font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px;\">"																													+
-//                        member.getNickname()																																													+
-//                        "		님 안녕하세요.<br />"																																													+
-//                        "		YG1110 BLOG에 가입해 주셔서 진심으로 감사드립니다.<br />"																																						+
-//                        "		아래 <b style=\"color: #02b875\">'메일 인증'</b> 버튼을 클릭하여 회원가입을 완료해 주세요.<br />"																													+
-//                        "		감사합니다."																																															+
-//                        "	</p>"																																																	+
-//                        "	<a style=\"color: #FFF; text-decoration: none; text-align: center;\""																																	+
-//                        "	href='http://localhost:8080/members/authConfirm?id=" + emailAuth.getId() + "&emailAuthToken=" + emailAuth.getEmailAuthToken() + ">" +
-//                        "		<p"																																																	+
-//                        "			style=\"display: inline-block; width: 210px; height: 45px; margin: 30px 5px 40px; background: #02b875; line-height: 45px; vertical-align: middle; font-size: 16px;\">"							+
-//                        "			메일 인증</p>"																																														+
-//                        "	</a>"																																																	+
-//                        "	<div style=\"border-top: 1px solid #DDD; padding: 5px;\"></div>"																																		+
-//                        " </div>"
-//        );
-//        emailcontent.append("</body>");
-//        emailcontent.append("</html>");
-
-        mailComponents.sendMail(member.getEmail(), title, text);
-//        mailComponents.sendMail(member.getEmail(), title, emailcontent.toString());
+        mailComponents.sendMail(member.getEmail(), title, text.toString());
     }
 
     /** 이메일 인증 정보 조회 */
@@ -227,6 +283,22 @@ public class MemberServiceImpl implements MemberService {
     private void validatePatternMatch(String pattern, String parameter, ErrorCode errorCode) {
         if (!parameter.matches(pattern)) {
             throw new MemberException(errorCode);
+        }
+    }
+
+    /** 이메일로 회원 정보 확인 */
+    private Member getMemberByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberException(LOAD_USER_FAILED));
+    }
+
+    /** 회원정보 변경 유효성 검사 */
+    private void validateUpdateMember(MemberUpdate.Request request, Member member) {
+        if (!request.getNickname().equals(member.getNickname())) {
+            validateNicknameNotExist(request.getNickname());
+        }
+        if (!request.getPhone().equals(member.getPhone())) {
+            validatePhoneNotExist(request.getNickname());
         }
     }
 }
