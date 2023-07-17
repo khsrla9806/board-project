@@ -1,6 +1,6 @@
 package com.board.reply.controller;
 
-import com.board.exception.GlobalExceptionHandler;
+import com.board.global.exception.GlobalExceptionHandler;
 import com.board.reply.dto.ReplyDto;
 import com.board.reply.service.ReplyService;
 import org.junit.jupiter.api.DisplayName;
