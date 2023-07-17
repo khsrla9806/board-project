@@ -1,7 +1,7 @@
-package com.board.exception;
+package com.board.global.exception;
 
-import com.board.response.dto.CommonResponse;
-import com.board.response.service.ResponseService;
+import com.board.global.response.dto.CommonResponse;
+import com.board.global.response.service.ResponseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import static com.board.response.type.ErrorCode.*;
+import static com.board.global.response.type.ErrorCode.*;
 
 @Slf4j
 @RestControllerAdvice

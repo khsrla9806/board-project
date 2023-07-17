@@ -1,4 +1,4 @@
-package com.board.response.dto;
+package com.board.global.response.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package com.board.response.type;
+package com.board.global.response.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

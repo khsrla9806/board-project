@@ -1,9 +1,9 @@
-package com.board.response.service.impl;
+package com.board.global.response.service.impl;
 
-import com.board.response.dto.CommonResponse;
-import com.board.response.service.ResponseService;
-import com.board.response.type.ErrorCode;
-import com.board.response.type.SuccessCode;
+import com.board.global.response.service.ResponseService;
+import com.board.global.response.type.SuccessCode;
+import com.board.global.response.dto.CommonResponse;
+import com.board.global.response.type.ErrorCode;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,15 +43,6 @@ public class ResponseServiceImpl implements ResponseService {
     @Override
     public <T> CommonResponse<T> failure(ErrorCode errorCode) {
         return CommonResponse.<T>builder()
-                .success(false)
-                .code(errorCode.toString())
-                .message(errorCode.getMessage())
-                .build();
-    }
-
-    @Override
-    public <T> CommonResponse<List<T>> failureList(ErrorCode errorCode) {
-        return CommonResponse.<List<T>>builder()
                 .success(false)
                 .code(errorCode.toString())
                 .message(errorCode.getMessage())

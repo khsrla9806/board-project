@@ -1,4 +1,4 @@
-package com.board.security;
+package com.board.global.security;
 
 import com.board.member.domain.Member;
 import com.board.member.repository.MemberRepository;

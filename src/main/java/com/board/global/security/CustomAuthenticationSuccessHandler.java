@@ -1,4 +1,4 @@
-package com.board.security;
+package com.board.global.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;

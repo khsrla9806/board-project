@@ -1,4 +1,4 @@
-package com.board.components;
+package com.board.global.components;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;

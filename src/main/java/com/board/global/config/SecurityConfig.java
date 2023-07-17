@@ -1,6 +1,6 @@
-package com.board.config;
+package com.board.global.config;
 
-import com.board.security.CustomAuthenticationFailureHandler;
+import com.board.global.security.CustomAuthenticationFailureHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,13 +9,13 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-//    private final CustomAuthenticationProvider authenticationProvider;
     private final CustomAuthenticationFailureHandler authenticationFailureHandler;
 
     @Bean
@@ -36,7 +36,16 @@ public class SecurityConfig {
                 .loginPage("/members/login")
                 .failureHandler(authenticationFailureHandler)
 //                .successHandler(null)
+                .defaultSuccessUrl("/board")
                 .permitAll();
+
+        // 로그아웃 설정
+        http.logout()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/members/logout"))
+                .logoutSuccessUrl("/members/login")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("SESSION", "JSESSIONID");
 
         http.exceptionHandling()
                 .accessDeniedPage("/error/denied");
