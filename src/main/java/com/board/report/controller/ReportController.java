@@ -1,11 +1,10 @@
 package com.board.report.controller;
 
-import com.board.exception.MemberException;
-import com.board.report.domain.Report;
+import com.board.global.exception.MemberException;
+import com.board.global.response.type.ErrorCode;
 import com.board.report.dto.ReportDto;
 import com.board.report.service.ReportService;
 import com.board.report.type.Reason;
-import com.board.response.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
