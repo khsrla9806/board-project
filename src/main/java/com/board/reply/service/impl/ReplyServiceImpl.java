@@ -2,15 +2,19 @@ package com.board.reply.service.impl;
 
 import com.board.board.domain.Board;
 import com.board.board.repository.BoardRepository;
+import com.board.member.domain.Member;
+import com.board.member.repository.MemberRepository;
 import com.board.reply.domain.Reply;
 import com.board.reply.dto.ReplyDto;
 import com.board.reply.repository.ReplyRepository;
 import com.board.reply.service.ReplyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,11 +27,14 @@ public class ReplyServiceImpl implements ReplyService {
 
     private final ReplyRepository replyRepository;
 
-    // 특정 게시글의 댓글 출력
+    private final MemberRepository memberRepository;
+
+    // 특정 게시글의 정보와 댓글 출력
     @Override
     public ReplyDto.BoardWithReplyDto findBoardWithReplies(Long boardId) {
+
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다 : " + boardId));
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시글입니다."));
 
         List<Reply> replies = replyRepository.findByBoardIdAndParentIsNull(board.getId());
 
@@ -48,29 +55,53 @@ public class ReplyServiceImpl implements ReplyService {
 
     // 댓글 등록
     @Override
-    public void addReply(ReplyDto.ReplyRequestDto replyRequestDto) {
+    public void addReply(ReplyDto.ReplyRequestDto replyRequestDto, Principal principal) {
 
-        Board board = boardRepository.findById(replyRequestDto.getBoardId())
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다 : " + replyRequestDto.getBoardId()));
+        Board board = findBoard(replyRequestDto.getBoardId());
 
-        Reply parenReply = null;
+        Member member = memberRepository.findByEmail(principal.getName())
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+
+        Reply parentReply = null;
         if (replyRequestDto.getParentId() != null) {
-            parenReply = replyRepository.findById(replyRequestDto.getParentId())
-                    .orElseThrow(() -> new EntityNotFoundException("댓글을 찾을 수 없습니다. : " + replyRequestDto.getParentId()));
+            parentReply = findReply(replyRequestDto.getParentId());
         }
 
-        Long userId = 1L;   // TODO : Member 와 연관관계 설정 현재는 임시로 1L 값을 넣기로 함
-
-        Reply reply = replyRequestDto.toEntity(board, parenReply, userId);
+        Reply reply = replyRequestDto.toEntity(board, parentReply, member);
 
         replyRepository.save(reply);
     }
 
     // 댓글 삭제
     @Override
-    public void removeReply(Long id) {
+    public void removeReply(Long replyId, Principal principal) {
 
-        replyRepository.deleteById(id);
+        Reply reply = findReply(replyId);
+
+        if(!reply.getMember().getEmail().equals(principal.getName())) {
+            throw new EntityNotFoundException("일치하지 않는 회원 입니다."); // TODO: Custom Exception 처리 필요
+        }else {
+            replyRepository.deleteById(replyId);
+        }
 
     }
+
+    // 게시글이 존재하는지 검증
+    private Board findBoard(Long boardId) {
+        return boardRepository.findById(boardId)
+                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다 : " + boardId));
+    }
+
+    // 댓글이 존재하는지 검증
+    private Reply findReply(Long replyId) {
+        return replyRepository.findById(replyId)
+                .orElseThrow(() -> new EntityNotFoundException("댓글을 찾을 수 없습니다. : " + replyId));
+    }
+
+    // 회원이 존재하는지 검증
+    private Member findMember(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("회원을 찾을 수 없습니다. : " + memberId));
+    }
+
 }
