@@ -74,6 +74,7 @@ project(':module-admin') {
 
     dependencies {
         implementation project(':module-domain')
+        implementation project(':module-client')
     }
 }
 
