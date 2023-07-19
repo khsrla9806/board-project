@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -34,18 +33,28 @@ public class SecurityConfig {
         // 로그인 설정
         http.formLogin()
                 .loginPage("/members/login")
+                .failureUrl("/members/login")
+                .defaultSuccessUrl("/board")
                 .failureHandler(authenticationFailureHandler)
 //                .successHandler(null)
-                .defaultSuccessUrl("/board")
+                .usernameParameter("email")
                 .permitAll();
 
         // 로그아웃 설정
         http.logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/members/logout"))
+                .logoutUrl("/members/logout")
+//                .logoutRequestMatcher(new AntPathRequestMatcher("/members/logout"))
                 .logoutSuccessUrl("/members/login")
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .deleteCookies("SESSION", "JSESSIONID");
+
+        // 세션 설정
+        http.sessionManagement()
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+                .and()
+                .sessionFixation().changeSessionId();
 
         http.exceptionHandling()
                 .accessDeniedPage("/error/denied");
