@@ -61,6 +61,13 @@ public class MemberServiceImpl implements MemberService {
         EmailAuth emailAuth = emailAuthRepository.save(EmailAuth.generateEmailAuth(member));
         sendAuthConfirmEmail(member, emailAuth);
 
+        try {
+            // 5. 회원가입 요청시 5초 대기
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         return responseService.success(member.getId(), SUCCESS);
     }
 
