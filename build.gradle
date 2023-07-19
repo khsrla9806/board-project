@@ -76,3 +76,10 @@ project(':module-admin') {
         implementation project(':module-domain')
     }
 }
+
+project(':module-scheduler') {
+
+    dependencies {
+        implementation project(':module-domain')
+    }
+}
