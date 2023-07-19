@@ -34,7 +34,6 @@ import static com.module.board.type.Category.PRO;
 import static com.module.board.type.Status.ACTIVE;
 import static com.module.board.type.Status.DELETED;
 
-
 @RequiredArgsConstructor
 @Service
 public class BoardServiceImpl implements BoardService {
