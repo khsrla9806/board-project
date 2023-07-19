@@ -28,8 +28,10 @@
                 type="button" class="btn btn-outline-dark btn-sm">로그인</a>
         <a sec:authorize="isAuthenticated()" style="margin-right: 5px" href="/board/createForm"
                 type="button" class="btn btn-outline-primary btn-sm">게시글 작성</a>
-        <a sec:authorize="isAuthenticated()" th:text="|${#authentication.name}님 안녕하세요.|"
-                type="button" class="btn btn-outline-dark btn-sm">사용자</a>
+        <a sec:authorize="isAuthenticated()" style="margin-right: 5px" href="/members/myPage"
+           th:text="|${#authentication.name}님 안녕하세요.|" type="button" class="btn btn-outline-dark btn-sm">사용자</a>
+        <a sec:authorize="isAuthenticated()" href="/members/logout"
+           type="button" class="btn btn-outline-danger btn-sm">로그아웃</a>
       </div>
     </div>
   </nav>
