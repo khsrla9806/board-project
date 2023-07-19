@@ -18,7 +18,20 @@ spring:
 
   jpa:
     generate-ddl: true
-    hibernate:
-      ddl-auto: update
+#    hibernate:
+#      ddl-auto: update
     show-sql: true
     database: mysql
+
+  sql:
+    init:
+      mode: always
+
+mybatis:
+  mapper-locations:
+    - classpath:mapper/**.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+server:
+  port: 8081
