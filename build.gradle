@@ -1,42 +1,78 @@
-plugins {
-    id 'java'
-    id 'org.springframework.boot' version '2.7.13'
-    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
-}
+buildscript {
+    ext {
+        springBootVersion = '2.7.13'
+    }
 
-group = 'com.board'
-version = '0.0.1-SNAPSHOT'
+    repositories {
+        mavenCentral()
+    }
 
-java {
-    sourceCompatibility = '11'
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "io.spring.gradle:dependency-management-plugin:1.0.15.RELEASE"
     }
 }
 
-repositories {
-    mavenCentral()
+// 빌드 시에 실행 가능한 JAR 파일을 생성하지 않는다.
+//bootJar.enabled = false
+
+//tasks.register("prepareKotlinBuildScriptModel"){}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = 'com.modules'
+    version = '0.0.1-SNAPSHOT'
+
+    sourceCompatibility = '11'
+
+    repositories {
+        mavenCentral()
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+        runtimeOnly 'com.mysql:mysql-connector-j'
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
 }
 
-dependencies {
-    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-mail'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
-    compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.mysql:mysql-connector-j'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
+project(':module-domain') {
+
+    bootJar {
+        enabled = false
+    }
+    jar {
+        enabled = true
+    }
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+project(':module-client') {
+
+    dependencies {
+        implementation project(':module-domain')
+    }
+}
+
+project(':module-admin') {
+
+    dependencies {
+        implementation project(':module-domain')
+    }
 }
