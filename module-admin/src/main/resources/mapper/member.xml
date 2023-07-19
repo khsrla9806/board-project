@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.module.adminMember.repository.AdminMemberRepository">
+
+    <select id="findAllMemberWithBoardCountAndReplyCount" resultType="com.module.adminMember.dto.AdminMemberDto">
+        SELECT
+            m.id,
+            m.nickname,
+            m.username,
+            m.phone,
+            m.email,
+            m.member_role as memberRole,
+            m.member_status as memberStatus,
+            m.created_at as createdAt,
+            count(DISTINCT b.id) as boardCount,
+            count(DISTINCT r.id) as replyCount
+        FROM member m
+        LEFT JOIN
+            board b on m.id = b.member_id
+        LEFT JOIN
+            email_auth e on m.id = e.member_id
+        LEFT JOIN
+            (
+                SELECT
+                    r.id,
+                    r.member_id,
+                    b.member_id as author_id
+                FROM
+                    reply r
+                LEFT JOIN
+                    board b on r.board_id = b.id
+            ) r on m.id = r.member_id
+        GROUP BY
+            m.id, m.nickname, m.username, m.phone, m.email,m.member_role, m.member_status, m.created_at;
+    </select>
+
+    <select id="findAllMemberWithBoardCountAndReplyCountOrderBy" resultType="com.module.adminMember.dto.AdminMemberDto">
+        SELECT
+            m.id,
+            m.nickname,
+            m.username,
+            m.phone,
+            m.email,
+            m.member_role as memberRole,
+            m.member_status as memberStatus,
+            m.created_at as createdAt,
+            count(DISTINCT b.id) as boardCount,
+            count(DISTINCT r.id) as replyCount
+        FROM member m
+        LEFT JOIN
+            board b on m.id = b.member_id
+        LEFT JOIN
+            email_auth e on m.id = e.member_id
+        LEFT JOIN
+             (
+                 SELECT
+                     r.id,
+                     r.member_id,
+                     b.member_id as author_id
+                 FROM
+                     reply r
+                         LEFT JOIN
+                     board b on r.board_id = b.id
+             ) r on m.id = r.member_id
+        GROUP BY
+            m.id, m.nickname, m.username, m.phone, m.email, m.member_role, m.member_status, m.created_at
+        <if test="sortBy != null">
+            ORDER BY
+            <choose>
+                <when test="sortBy == 'replyCount'">
+                    replyCount
+                    <if test="sortOrder == 'DESC'">DESC</if>
+                    <if test="sortOrder == 'ASC'">ASC</if>
+                </when>
+                <otherwise>
+                    boardCount
+                    <if test="sortOrder == 'DESC'">DESC</if>
+                    <if test="sortOrder == 'ASC'">ASC</if>
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+</mapper>
