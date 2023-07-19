@@ -1,5 +1,6 @@
 package com.module.member.domain;
 
+import com.module.board.domain.Board;
 import com.module.global.BaseEntity;
 import com.module.member.dto.MemberUpdate;
 import com.module.member.type.MemberRole;
@@ -9,11 +10,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -38,11 +38,18 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MemberStatus memberStatus;
 
+    @OneToMany(mappedBy = "member")
+    private List<Board> boards = new ArrayList<>();
+
     @Column
     private LocalDateTime unregisteredAt;
 
     public void updateMemberStatus(MemberStatus memberStatus) {
         this.memberStatus = memberStatus;
+    }
+
+    public void updateMemberRole(MemberRole memberRole) {
+        this.memberRole = memberRole;
     }
 
     public void updateMember(MemberUpdate.Request request) {
