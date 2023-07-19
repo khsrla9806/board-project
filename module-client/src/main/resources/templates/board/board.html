@@ -23,7 +23,7 @@
     <div class="button-box">
       <div class="row">
         <span class="col button-box-left">
-          <a href="javascript:history.back()" class="btn btn-outline-dark btn-sm">뒤로가기</a>
+          <a href="/board" class="btn btn-outline-dark btn-sm">목록으로</a>
         </span>
         <span class="col button-box-right">
           <span th:if="${#authentication.isAuthenticated() && #strings.equals(#authentication.getName(), board.member.email)}">
