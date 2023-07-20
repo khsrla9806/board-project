@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'com.modules'
+group = 'com.module'
 version = '0.0.1-SNAPSHOT'
 
 repositories {
