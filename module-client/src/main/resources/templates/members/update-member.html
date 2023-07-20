@@ -48,7 +48,7 @@
                 <div class="col-md-6 mb-3">
                     <label for="registrationDate">가입일</label>
                     <input type="text" class="form-control" id="registrationDate" name="registrationDate"
-                           th:value="${response.data.createdAt}"
+                           th:value="${#temporals.format(response.data.createdAt, 'yyyy-MM-dd HH:mm:ss')}"
                            disabled>
                 </div>
             </div>
