@@ -9,7 +9,13 @@
   <title>Board List Page</title>
   <script th:inline="javascript">
     function convertPage(page) {
-        location.href = location.pathname + "?page=" + page;
+        const keyword = [[${keyword}]];
+
+        if (keyword != null) {
+            location.href = location.pathname + "?page=" + page + "&keyword=" + keyword;
+        } else {
+            location.href = location.pathname + "?page=" + page;
+        }
     }
   </script>
 </head>
