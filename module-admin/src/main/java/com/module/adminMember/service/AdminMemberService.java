@@ -1,6 +1,7 @@
 package com.module.adminMember.service;
 
 import com.module.adminMember.dto.AdminMemberDto;
+import com.module.member.type.MemberRole;
 import com.module.response.dto.CommonResponse;
 
 import java.util.List;
@@ -14,4 +15,6 @@ public interface AdminMemberService {
     CommonResponse<?> activeMember(Long memberId);
 
     CommonResponse<?> blockMember(Long memberId);
+
+    void updateMemberRole(Long memberId, MemberRole memberRole);
 }
