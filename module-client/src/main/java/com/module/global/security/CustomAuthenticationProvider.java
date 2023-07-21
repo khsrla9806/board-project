@@ -26,12 +26,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         // 2. 비밀번호 검증
         if (!passwordEncoder.matches(password, member.getPassword())) {
-//            try {
-//                // 3. 비밀번호 검증 실패 시 1초 지연
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                Thread.currentThread().interrupt();
-//            }
+            try {
+                // 3. 비밀번호 검증 실패 시 1초 지연
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
             throw new BadCredentialsException("이메일 또는 비밀번호를 잘못 입력했습니다.");
         }
 
