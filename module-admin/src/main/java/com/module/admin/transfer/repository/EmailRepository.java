@@ -8,5 +8,5 @@ import org.apache.ibatis.annotations.Param;
 public interface EmailRepository {
 
     // 관리자가 보낸 메일 정보 저장
-    void save(@Param("emailTransfer") EmailTransfer emailTransfer);
+    void saveEmail(@Param("emailTransfer") EmailTransfer emailTransfer);
 }
