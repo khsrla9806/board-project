@@ -84,4 +84,10 @@
         </if>
     </select>
 
+    <update id="updateMemberStatus">
+        UPDATE member
+        SET member_status = #{memberStatus}
+        WHERE id = #{memberId}
+    </update>
+
 </mapper>
