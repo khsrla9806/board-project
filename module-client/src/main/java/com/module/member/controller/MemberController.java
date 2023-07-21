@@ -50,8 +50,11 @@ public class MemberController {
 
     @GetMapping("/myPage")
     public String myPage(Model model, Principal principal) {
-        String email = principal.getName();
+        if (validatePrincipal(principal)) {
+            return "redirect:/members/login";
+        }
 
+        String email = principal.getName();
         CommonResponse<?> response = memberService.getMemberDetailsByEmail(email);
         model.addAttribute("response", response);
 
@@ -65,8 +68,11 @@ public class MemberController {
 
     @RequestMapping("/update-member")
     public String updateMember(Model model, Principal principal) {
-        String email = principal.getName();
+        if (validatePrincipal(principal)) {
+            return "redirect:/members/login";
+        }
 
+        String email = principal.getName();
         CommonResponse<?> response = memberService.getMemberDetailsByEmail(email);
         model.addAttribute("response", response);
 
@@ -75,12 +81,18 @@ public class MemberController {
 
     @RequestMapping("/update-password")
     public String updatePassword(Model model, Principal principal) {
-        String email = principal.getName();
+        if (validatePrincipal(principal)) {
+            return "redirect:/members/login";
+        }
 
+        String email = principal.getName();
         CommonResponse<?> response = memberService.getMemberDetailsByEmail(email);
         model.addAttribute("response", response);
 
         return "members/update-password";
     }
 
+    private boolean validatePrincipal(Principal principal) {
+        return principal == null;
+    }
 }
