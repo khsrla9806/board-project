@@ -43,14 +43,6 @@ public class EmailServiceImpl implements EmailService {
 
         emailRepository.saveEmail(emailTransfer);
         sendEmail(emailTransfer, receiver);
-        
-        // 3. 메일 전송 중복되지 않게 Thread sleep 적용
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Thread.currentThread().interrupt();
-        }
 
         return responseService.successWithNoContent(SUCCESS);
     }
