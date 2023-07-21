@@ -30,7 +30,7 @@
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1>사용자 통계</h1>
+                        <h1>사용자 관리</h1>
                     </div>
                 </div>
             </div>
@@ -51,28 +51,13 @@
                                         <th>회원 번호</th>
                                         <th>회원 닉네임</th>
                                         <th>회원 이름</th>
-                                        <th>회원 전화번호</th>
                                         <th>회원 이메일</th>
                                         <th>회원 등급</th>
                                         <th>회원 상태</th>
-                                        <th>가입 날짜</th>
-                                        <th>
-                                            <i class="fa-solid fa-sort-up" style="color: #0c5fed; cursor: pointer"
-                                               onclick="toggleSort(this, 'boardCount', 'DESC');"></i>
-                                            <i class="fa-solid fa-sort-down" style="color: #025af2; cursor: pointer; display: none;"
-                                                onclick="toggleSort(this.previousElementSibling, 'boardCount', 'ASC');"></i>
-                                            작성 게시글 수
-                                        </th>
-                                        <th>
-                                            <i class="fa-solid fa-sort-up" style="color: #0c5fed; cursor: pointer"
-                                               onclick="toggleSort(this, 'replyCount', 'DESC');"></i>
-                                            <i class="fa-solid fa-sort-down" style="color: #025af2; cursor: pointer; display: none;"
-                                               onclick="toggleSort(this.previousElementSibling, 'replyCount', 'ASC');"></i>
-                                            작성 댓글 수
-                                        </th>
                                         <th>메일 작성</th>
                                         <th>블랙리스트 관리</th>
                                         <th>게시글 관리</th>
+                                        <th>권한 관리</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -80,21 +65,13 @@
                                         <td th:text="${member.id}">memberId</td>
                                         <td th:text="${member.nickname}">nickname</td>
                                         <td th:text="${member.username}">username</td>
-                                        <td th:text="${member.phone}">phone</td>
                                         <td th:text="${member.email}">email</td>
                                         <td>
-                                            <span th:if="${#strings.equals(member.memberRole, 'COMMON')}">새싹맴버</span>
-                                            <span th:if="${#strings.equals(member.memberRole, 'PREMIUM')}">우수멤버</span>
-                                            <span th:if="${#strings.equals(member.memberRole, 'ADMIN')}">어드민</span>
+                                            <span th:if="${#strings.equals(member.memberRole, 'COMMON')}">새싹회원</span>
+                                            <span th:if="${#strings.equals(member.memberRole, 'PREMIUM')}">우수회원</span>
+                                            <span th:if="${#strings.equals(member.memberRole, 'ADMIN')}">관리자</span>
                                         </td>
                                         <td th:text="${member.memberStatus}">memberStatus</td>
-                                        <td th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm:ss')}">createdAt</td>
-                                        <td th:text="${member.boardCount}">
-                                            boardCount
-                                        </td>
-                                        <td th:text="${member.replyCount}">
-                                            replyCount
-                                        </td>
                                         <td>
                                             <button class="btn btn-primary email-btn" th:attr="data-member-id=${member.id}">
                                                 작성
@@ -108,6 +85,10 @@
                                             <a th:href="@{/admin/members/{memberId}/boards(memberId=${member.id})}">
                                                 <button class="btn btn-info">이동</button>
                                             </a>
+                                        </td>
+                                        <td>
+                                            <button  type="button" class="pl-3 btn btn-danger"
+                                                     id="roleModelButton" th:onclick="|openModal([[${member.id}]])|">수정</button>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -123,6 +104,32 @@
             </div>
         </section>
         <!-- AdminApplication content end -->
+
+        <!-- 사용자 권한 변경 모달 시작 -->
+        <div id="modal" class="modal-overlay" style="display: none">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">사용자 권한 변경</h5>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/admin/member-role" method="post">
+                            <input type="number" name="memberId" value="0" readonly hidden />
+                            <div>
+                                <select id="memberRole" name="memberRole" class="form-select form-select-sm" aria-label=".form-select-sm example">
+                                    <option th:value="null" selected>변경하려는 권한을 선택해주세요.</option>
+                                    <option th:each="role : ${memberRoles}" th:value="${role}" th:text="${role.description}" value="1">One</option>
+                                </select>
+                            </div>
+
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">닫기</button>
+                            <button type="submit" class="btn btn-danger">권한 변경</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 사용자 권한 변경 모달 종료 -->
 
     </div>
     <!-- Content end -->
@@ -230,7 +237,7 @@
             fetch(apiUrl, { method: "POST" })
                 .then(function (response) {
                     alert("블랙리스트 등록이 성공적으로 수행되었습니다.");
-                    window.location.href = "/admin/members"
+                    window.location.href = "/admin/members-control"
                 })
                 .catch(function (error) {
                     alert("Error: " + error);
@@ -246,7 +253,7 @@
             fetch(apiUrl, { method: "POST" })
                 .then(function (response) {
                     alert("블랙리스트 해제가 성공적으로 수행되었습니다.");
-                    window.location.href = "/admin/members"
+                    window.location.href = "/admin/members-control"
                 })
                 .catch(function (error) {
                     alert("Error: " + error);
@@ -254,6 +261,17 @@
         }
     }
 
+    /* 사용자 권한 수정 시작 */
+    const roleModal = document.getElementById("modal");
+    function openModal(memberId) {
+        roleModal.style.display = "flex";
+        $('input[name=memberId]').attr('value', memberId);
+    }
+
+    function closeModal() {
+        roleModal.style.display = "none";
+    }
+    /* 사용자 권한 수정 종료 */
 
 </script>
 

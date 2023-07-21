@@ -1,14 +1,18 @@
 package com.module.member.dto;
 
 import com.module.member.domain.Member;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 public class MemberUpdate {
 
     @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Builder
     public static class Request {
         private String nickname;
