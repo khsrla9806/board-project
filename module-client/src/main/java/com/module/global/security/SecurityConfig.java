@@ -1,9 +1,9 @@
-package com.module.global.config;
+package com.module.global.security;
 
-import com.module.global.security.CustomAuthenticationFailureHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final CustomAuthenticationFailureHandler authenticationFailureHandler;
@@ -25,7 +26,7 @@ public class SecurityConfig {
 
         // 권한 설정
         http.authorizeRequests()
-                .antMatchers("/", "/**")
+                .antMatchers("/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated();
@@ -34,7 +35,7 @@ public class SecurityConfig {
         http.formLogin()
                 .loginPage("/members/login")
                 .failureUrl("/members/login")
-                .defaultSuccessUrl("/board")
+                .defaultSuccessUrl("/")
                 .failureHandler(authenticationFailureHandler)
 //                .successHandler(null)
                 .usernameParameter("email")
@@ -50,11 +51,11 @@ public class SecurityConfig {
                 .deleteCookies("SESSION", "JSESSIONID");
 
         // 세션 설정
-//        http.sessionManagement()
-//                .maximumSessions(1)
-//                .maxSessionsPreventsLogin(false)
-//                .and()
-//                .sessionFixation().changeSessionId();
+        http.sessionManagement()
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+                .and()
+                .sessionFixation().changeSessionId();
 
         http.exceptionHandling()
                 .accessDeniedPage("/error/denied");

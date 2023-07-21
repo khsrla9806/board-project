@@ -4,12 +4,14 @@ import com.module.adminMember.dto.AdminMemberDto;
 import com.module.adminMember.service.AdminMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Controller
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class ApiAdminMemberController {

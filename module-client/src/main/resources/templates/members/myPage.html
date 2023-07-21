@@ -46,7 +46,9 @@
             </div>
             <div class="text-center mb-3" th:if="${response.isSuccess()}">
                 <h5>
-                    <span th:text="${response.data.memberRole}"></span>
+                    <span th:if="${#strings.equals(response.data.memberRole, 'COMMON')}">새싹맴버</span>
+                    <span th:if="${#strings.equals(response.data.memberRole, 'PREMIUM')}">우수멤버</span>
+                    <span th:if="${#strings.equals(response.data.memberRole, 'ADMIN')}">어드민</span>
                 </h5>
             </div>
 
