@@ -40,7 +40,7 @@ public class BoardController {
     @GetMapping("/createForm")
     public String boardCreateForm(Principal principal, Model model) {
         checkAuthentication(principal);
-        model.addAttribute("board", new BoardDto.CreateRequest());
+        model.addAttribute("board", BoardDto.CreateRequest.builder().build());
 
         return "board/createForm";
     }
