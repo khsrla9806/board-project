@@ -21,5 +21,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // 게시물이 count 이상인 회원 목록 조회
     @Query("SELECT m FROM Member m JOIN m.boards b WHERE m.memberRole = 'COMMON' GROUP BY m HAVING COUNT(b) >= :count")
-    List<Member> findMembersWithBoardCount(Long count);
+    List<Member> findMembersWithBoardCount(@Param("count") Long count);
 }
