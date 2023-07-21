@@ -90,4 +90,16 @@
         WHERE id = #{memberId}
     </update>
 
+    <select id="findMemberById" resultType="com.module.member.domain.Member">
+        SELECT *
+        FROM member m
+        WHERE m.id = #{memberId}
+    </select>
+
+    <update id="updateMemberById">
+        UPDATE member m
+        SET m.member_role = #{memberRole}
+        WHERE m.id = #{memberId}
+    </update>
+
 </mapper>
