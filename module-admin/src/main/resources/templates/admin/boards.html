@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>관리자 페이지</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/a1cef2084c.js" crossorigin="anonymous"></script>
+    <!-- Theme style -->
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <!-- DataTables -->
+    <link rel="stylesheet" th:href="@{/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/datatables-responsive/css/responsive.bootstrap4.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/datatables-buttons/css/buttons.bootstrap4.min.css}">
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+    <div th:replace="~{/common/navigationbar :: header}"></div>
+    <div th:replace="~{/common/navigationbar :: sidebar}"></div>
+
+    <!-- Content start -->
+    <div class="content-wrapper">
+
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>회원 게시글 관리</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Content Header End -->
+
+        <!-- AdminApplication content start -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">DataTable with default features</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="memberTable" class="table table-bordered table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>게시글 번호</th>
+                                        <th>카테고리</th>
+                                        <th>제목</th>
+                                        <th>상태</th>
+                                        <th>생성 날짜</th>
+                                        <th>상태 변경</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="board : ${response.data}">
+                                        <td th:text="${board.id}">boardId</td>
+                                        <td>
+                                            <span th:if="${#strings.equals(board.category, 'COMMON')}">새싹</span>
+                                            <span th:if="${#strings.equals(board.category, 'PR')}">우수</span>
+                                        </td>
+                                        <td th:text="${board.title}">title</td>
+                                        <td>
+                                            <span th:if="${#strings.equals(board.status, 'ACTIVE')}">게시</span>
+                                            <span th:if="${#strings.equals(board.status, 'FORBIDDEN')}">숨김</span>
+                                            <span th:if="${#strings.equals(board.status, 'DELETED')}">삭제</span>
+                                        </td>
+                                        <td th:text="${#temporals.format(board.createdAt, 'yyyy-MM-dd HH:mm:ss')}">createdAt</td>
+                                        <td>
+                                            <select th:attr="data-board-id=${board.id}" onchange="updateBoardStatus(this)">
+                                                <option th:value="'BLANK'">선택</option>
+                                                <option th:value="'ACTIVE'">게시</option>
+                                                <option th:value="'FORBIDDEN'">숨김</option>
+                                                <option th:value="'DELETED'">삭제</option>
+                                            </select>
+                                        </td>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+        <!-- AdminApplication content end -->
+
+    </div>
+    <!-- Content end -->
+
+    <div th:replace="~{/common/footer :: footer}"></div>
+    <div th:replace="~{/common/navigationbar :: control-sidebar}"></div>
+
+</div>
+</body>
+
+<!-- jQuery -->
+<script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+<!-- Bootstrap 4 -->
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<!-- AdminLTE App -->
+<script th:src="@{/js/adminlte.min.js}"></script>
+<!-- AdminLTE for demo purposes -->
+<script th:src="@{/js/demo.js}"></script>
+
+<script>
+
+    // function updateBoardStatus(boardId, selectedStatus) {
+    //     // AJAX를 사용하여 서버에 선택된 상태를 전송하는 로직 추가
+    //     // 이 예시에서는 jQuery의 AJAX 함수를 사용하겠습니다.
+    //     $.ajax({
+    //         type: 'POST', // 또는 GET, PUT 등 HTTP 요청 메소드 선택
+    //         url: '/api/admin/updateBoardStatus', // 실제 서버의 엔드포인트 주소
+    //         data: {
+    //             boardId: boardId,
+    //             status: selectedStatus
+    //         },
+    //         contentType: 'application/json', // 데이터 타입이 JSON임을 명시
+    //         success: function (response) {
+    //             // 서버 응답에 대한 처리 로직 추가
+    //             // 예: 성공 메시지 보여주기 또는 페이지 새로고침 등
+    //             if (response.success) {
+    //                 // AJAX 요청 성공 후 updateBoardStatus 메소드를 호출
+    //             }
+    //         },
+    //         error: function (error) {
+    //             // 에러 처리 로직 추가
+    //         }
+    //     });
+    // }
+
+    $(document).ready(function() {
+        $('select').change(function() {
+            const boardId = $(this).data('board-id'); // data-board-id 속성의 값 가져오기
+            const selectedStatus = $(this).val(); // 선택된 <select> 요소의 value를 가져옵니다.
+            updateBoardStatus(boardId, selectedStatus);
+        });
+    });
+
+    function updateBoardStatus(boardId, selectedStatus) {
+        $.ajax({
+            type: 'POST',
+            url: '/api/admin/updateBoardStatus',
+            data: {
+                boardId: boardId,
+                status: selectedStatus
+            },
+            // contentType: 'application/json', // 데이터 타입이 JSON임을 명시
+            success: function (response) {
+                alert("변경되었습니다.")
+                location.reload();
+            },
+            error: function (error) {
+            }
+        });
+    }
+</script>
+
+</html>
