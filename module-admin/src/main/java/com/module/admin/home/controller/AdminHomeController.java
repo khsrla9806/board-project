@@ -6,10 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.security.Principal;
 
 @Controller
-@RequestMapping("/")
 public class AdminHomeController {
 
-    @RequestMapping
+    @RequestMapping("/")
     public String home(Principal principal) {
         if (validatePrincipal(principal)) {
             return "redirect:/members/login";

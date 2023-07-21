@@ -2,10 +2,10 @@ package com.module.adminReport.controller;
 
 import com.module.adminReport.dto.AdminReportDto;
 import com.module.adminReport.service.AdminReportService;
-import com.module.board.type.BoardView;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 @Controller
+@PreAuthorize("hasRole('ROLE_ADMIN')")
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminReportController {
@@ -27,7 +28,6 @@ public class AdminReportController {
     @GetMapping("/reports")
     public String reports(Model model) {
         List<AdminReportDto> allReports = adminReportService.findAllReportWithMemberAndBoard();
-
         model.addAttribute("response", allReports);
         return "/admin/report";
     }

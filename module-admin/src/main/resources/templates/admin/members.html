@@ -19,7 +19,7 @@
 <body class="hold-transition sidebar-mini">
 <div class="wrapper">
 
-<!--    <div th:replace="~{/common/navigationbar :: header}"></div>-->
+    <!--    <div th:replace="~{/common/navigationbar :: header}"></div>-->
     <div th:replace="~{/common/navigationbar :: sidebar}"></div>
 
     <!-- Content start -->
@@ -60,7 +60,7 @@
                                             <i class="fa-solid fa-sort-up" style="color: #0c5fed; cursor: pointer"
                                                onclick="toggleSort(this, 'boardCount', 'DESC');"></i>
                                             <i class="fa-solid fa-sort-down" style="color: #025af2; cursor: pointer; display: none;"
-                                                onclick="toggleSort(this.previousElementSibling, 'boardCount', 'ASC');"></i>
+                                               onclick="toggleSort(this.previousElementSibling, 'boardCount', 'ASC');"></i>
                                             작성 게시글 수
                                         </th>
                                         <th>
@@ -70,9 +70,6 @@
                                                onclick="toggleSort(this.previousElementSibling, 'replyCount', 'ASC');"></i>
                                             작성 댓글 수
                                         </th>
-                                        <th>메일 작성</th>
-                                        <th>블랙리스트 관리</th>
-                                        <th>게시글 관리</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -94,20 +91,6 @@
                                         </td>
                                         <td th:text="${member.replyCount}">
                                             replyCount
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-primary email-btn" th:attr="data-member-id=${member.id}">
-                                                작성
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-danger" th:if="${#strings.equals(member.memberStatus, 'BLOCKED')}" th:onclick="'activeMember(' + ${member.id} + ')'" >해제</button>
-                                            <button class="btn btn-success" th:if="${#strings.equals(member.memberStatus, 'ACTIVE')}" th:onclick="'blockMember(' + ${member.id} + ')'" >등록</button>
-                                        </td>
-                                        <td>
-                                            <a th:href="@{/admin/members/{memberId}/boards(memberId=${member.id})}">
-                                                <button class="btn btn-info">이동</button>
-                                            </a>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -197,64 +180,11 @@
                 "<td>" + formatDate(member.createdAt) + "</td>" +
                 "<td>" + member.boardCount + "</td>" +
                 "<td>" + member.replyCount + "</td>" +
-                "<td>" +
-                "<button class=\"btn btn-primary email-btn\" th:attr=\"data-member-id=${member.id}\">메일 작성</button>" +
-                "</td>" +
-                "<td>" +
-                " onchange=\"confirmBlacklist(this)\">" +
-                "</td>" +
                 "</tr>";
 
             tableBody.innerHTML += row;
         })
     }
-
-    const emailButtons = document.querySelectorAll(".email-btn");
-
-    emailButtons.forEach((button) => {
-        button.addEventListener("click", (event) => {
-            const memberId = event.target.getAttribute("data-member-id");
-            if (memberId) {
-                window.location.href = "/admin/email/write/" + memberId;
-            } else {
-                console.error("Invalid memberId");
-            }
-        });
-    });
-
-    function blockMember(memberId) {
-        const message = "정말로 블랙리스트에 등록하시겠습니까?";
-        if (window.confirm(message)) {
-            const apiUrl = "/api/admin/block/" + memberId;
-
-            fetch(apiUrl, { method: "POST" })
-                .then(function (response) {
-                    alert("블랙리스트 등록이 성공적으로 수행되었습니다.");
-                    window.location.href = "/admin/members"
-                })
-                .catch(function (error) {
-                    alert("Error: " + error);
-                });
-        }
-    }
-
-    function activeMember(memberId) {
-        const message = "정말로 블랙리스트에서 해제하시겠습니까?";
-        if (window.confirm(message)) {
-            const apiUrl = "/api/admin/active/" + memberId;
-
-            fetch(apiUrl, { method: "POST" })
-                .then(function (response) {
-                    alert("블랙리스트 해제가 성공적으로 수행되었습니다.");
-                    window.location.href = "/admin/members"
-                })
-                .catch(function (error) {
-                    alert("Error: " + error);
-                });
-        }
-    }
-
-
 </script>
 
 </html>
