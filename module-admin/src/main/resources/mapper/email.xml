@@ -5,8 +5,9 @@
 
 <mapper namespace="com.module.admin.transfer.repository.EmailRepository">
 
-    <insert id="save" parameterType="com.module.admin.transfer.dto.EmailTransfer">
-        INSERT INTO email (sender_id, receiver_id, title, content)
-        VALUES (#{sender.id}, #{receiver.id}, #{title}, #{content})
+    <insert id="saveEmail" parameterType="com.module.admin.transfer.dto.EmailTransfer">
+        INSERT INTO email (sender_id, receiver_id, title, content, created_at, updated_at)
+        VALUES (#{emailTransfer.sender.id}, #{emailTransfer.receiver.id}, #{emailTransfer.title}, #{emailTransfer.content}, now(), now())
     </insert>
+
 </mapper>
