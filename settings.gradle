@@ -1,1 +1,5 @@
-rootProject.name = 'board-project'
+rootProject.name = 'board'
+include 'module-domain'
+include 'module-client'
+include 'module-admin'
+include 'module-scheduler'

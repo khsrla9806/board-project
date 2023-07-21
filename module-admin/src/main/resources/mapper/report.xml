@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.module.adminReport.repository.AdminReportRepository">
+
+    <select id="findAllReportWithMemberAndBoard" resultType="com.module.adminReport.dto.AdminReportDto">
+        SELECT
+            re.id,
+            reporter.nickname as reporter_nickname,
+            re.created_at,
+            re.reason,
+            re.evidence_image,
+            m.id as reported_user_id,
+            m.nickname,
+            m.username,
+            m.email,
+            m.member_role as memberRole,
+            m.member_status as memberStatus
+        FROM report re
+         INNER JOIN board b on re.board_id = b.id
+         INNER JOIN member m on b.member_id = m.id
+         INNER JOIN member reporter on reporter.id = re.member_id;
+    </select>
+
+    <select id="findAllReportWithMemberAndBoardByReason" resultType="com.module.adminReport.dto.AdminReportDto">
+        SELECT
+            re.id,
+            reporter.nickname as reporter_nickname,
+            re.created_at,
+            re.reason,
+            re.evidence_image,
+            m.id as reported_user_id,
+            m.nickname,
+            m.username,
+            m.email,
+            m.member_role as memberRole,
+            m.member_status as memberStatus
+        FROM report re
+        INNER JOIN board b on re.board_id = b.id
+        INNER JOIN member m on b.member_id = m.id
+        INNER JOIN member reporter on reporter.id = re.member_id
+        <where>
+            <if test="reason != null and (reason == 'ABUSE' or reason == 'OBSCENE' or reason == 'SLANDER')">
+                re.reason = #{reason}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateMemberStatus">
+        UPDATE member
+        SET member_status = #{memberStatus}
+        WHERE id = #{memberId};
+    </update>
+
+</mapper>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>관리자 페이지</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/a1cef2084c.js" crossorigin="anonymous"></script>
+    <!-- Theme style -->
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <!-- DataTables -->
+    <link rel="stylesheet" th:href="@{/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/datatables-responsive/css/responsive.bootstrap4.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/datatables-buttons/css/buttons.bootstrap4.min.css}">
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+    <!--    <div th:replace="~{/common/navigationbar :: header}"></div>-->
+    <div th:replace="~{/common/navigationbar :: sidebar}"></div>
+
+    <!-- Content start -->
+    <div class="content-wrapper">
+
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>사용자 통계</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Content Header End -->
+
+        <!-- AdminApplication content start -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="memberTable" class="table table-bordered table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>회원 번호</th>
+                                        <th>회원 닉네임</th>
+                                        <th>회원 이름</th>
+                                        <th>회원 전화번호</th>
+                                        <th>회원 이메일</th>
+                                        <th>회원 등급</th>
+                                        <th>회원 상태</th>
+                                        <th>가입 날짜</th>
+                                        <th>
+                                            <i class="fa-solid fa-sort-up" style="color: #0c5fed; cursor: pointer"
+                                               onclick="toggleSort(this, 'boardCount', 'DESC');"></i>
+                                            <i class="fa-solid fa-sort-down" style="color: #025af2; cursor: pointer; display: none;"
+                                               onclick="toggleSort(this.previousElementSibling, 'boardCount', 'ASC');"></i>
+                                            작성 게시글 수
+                                        </th>
+                                        <th>
+                                            <i class="fa-solid fa-sort-up" style="color: #0c5fed; cursor: pointer"
+                                               onclick="toggleSort(this, 'replyCount', 'DESC');"></i>
+                                            <i class="fa-solid fa-sort-down" style="color: #025af2; cursor: pointer; display: none;"
+                                               onclick="toggleSort(this.previousElementSibling, 'replyCount', 'ASC');"></i>
+                                            작성 댓글 수
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="member : ${response}">
+                                        <td th:text="${member.id}">memberId</td>
+                                        <td th:text="${member.nickname}">nickname</td>
+                                        <td th:text="${member.username}">username</td>
+                                        <td th:text="${member.phone}">phone</td>
+                                        <td th:text="${member.email}">email</td>
+                                        <td>
+                                            <span th:if="${#strings.equals(member.memberRole, 'COMMON')}">새싹맴버</span>
+                                            <span th:if="${#strings.equals(member.memberRole, 'PREMIUM')}">우수멤버</span>
+                                            <span th:if="${#strings.equals(member.memberRole, 'ADMIN')}">어드민</span>
+                                        </td>
+                                        <td th:text="${member.memberStatus}">memberStatus</td>
+                                        <td th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm:ss')}">createdAt</td>
+                                        <td th:text="${member.boardCount}">
+                                            boardCount
+                                        </td>
+                                        <td th:text="${member.replyCount}">
+                                            replyCount
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+        <!-- AdminApplication content end -->
+
+    </div>
+    <!-- Content end -->
+
+    <div th:replace="~{/common/navigationbar :: control-sidebar}"></div>
+
+</div>
+</body>
+
+<!-- jQuery -->
+<script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+<!-- Bootstrap 4 -->
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<!-- AdminLTE App -->
+<script th:src="@{/js/adminlte.min.js}"></script>
+<!-- AdminLTE for demo purposes -->
+<script th:src="@{/js/demo.js}"></script>
+
+<script>
+
+    function toggleSort(icon, sortBy, sortOrder) {
+        const upIcon = icon;
+        const downIcon = icon.nextElementSibling;
+        const ascending = upIcon.style.display === "";
+
+        upIcon.style.display = ascending ? "none" : "";
+        downIcon.style.display = ascending ? "" : "none";
+
+        sortData(sortBy, sortOrder);
+
+    }
+
+    function sortData(sortBy, sortOrder) {
+        fetch("/api/admin/members?sortBy=" + sortBy + "&sortOrder=" + sortOrder)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                renderTable(data);
+            })
+            .catch(function (error) {
+                alert("Error: " + error);
+            });
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    function renderTable(data) {
+        const tableBody = document.getElementById("memberTable").getElementsByTagName("tbody")[0];
+        tableBody.innerHTML = "";
+
+        data.forEach(function (member) {
+            const row =
+                "<tr>" +
+                "<td>" + member.id + "</td>" +
+                "<td>" + member.nickname + "</td>" +
+                "<td>" + member.username + "</td>" +
+                "<td>" + member.phone + "</td>" +
+                "<td>" + member.email + "</td>" +
+                "<td>" + member.memberRole + "</td>" +
+                "<td>" + member.memberStatus + "</td>" +
+                "<td>" + formatDate(member.createdAt) + "</td>" +
+                "<td>" + member.boardCount + "</td>" +
+                "<td>" + member.replyCount + "</td>" +
+                "</tr>";
+
+            tableBody.innerHTML += row;
+        })
+    }
+</script>
+
+</html>

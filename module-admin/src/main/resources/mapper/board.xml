@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.module.admin.board.repository.AdminBoardRepository">
+
+    <!-- 최신순으로 모든 게시글 조회 -->
+    <select id="findBoardsByMemberIdOrderByCreatedAtDesc" resultType="com.module.board.domain.Board">
+        SELECT b.id,
+               b.title,
+               b.content,
+               b.thumbnail,
+               b.category,
+               b.status,
+               b.created_at as createdAt,
+               b.updated_at as updatedAt
+        FROM board b
+        WHERE member_id = #{memberId}
+        ORDER BY createdAt DESC
+    </select>
+
+    <update id="updateBoardStatusToActive">
+        UPDATE board
+        SET status = 'ACTIVE'
+        WHERE id = #{boardId}
+    </update>
+
+    <update id="updateBoardStatusToForbidden">
+        UPDATE board
+        SET status = 'FORBIDDEN'
+        WHERE id = #{boardId}
+    </update>
+
+    <update id="updateBoardStatusToDeleted">
+        UPDATE board
+        SET status = 'DELETED'
+        WHERE id = #{boardId}
+    </update>
+
+</mapper>
