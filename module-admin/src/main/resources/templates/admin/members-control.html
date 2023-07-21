@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>관리자 페이지</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/a1cef2084c.js" crossorigin="anonymous"></script>
+    <!-- Theme style -->
+    <link rel="stylesheet" th:href="@{/css/adminlte.css}">
+    <!-- DataTables -->
+    <link rel="stylesheet" th:href="@{/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/datatables-responsive/css/responsive.bootstrap4.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/datatables-buttons/css/buttons.bootstrap4.min.css}">
+</head>
+<body class="hold-transition sidebar-mini">
+<div class="wrapper">
+
+<!--    <div th:replace="~{/common/navigationbar :: header}"></div>-->
+    <div th:replace="~{/common/navigationbar :: sidebar}"></div>
+
+    <!-- Content start -->
+    <div class="content-wrapper">
+
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>사용자 관리</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Content Header End -->
+
+        <!-- AdminApplication content start -->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <table id="memberTable" class="table table-bordered table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th>회원 번호</th>
+                                        <th>회원 닉네임</th>
+                                        <th>회원 이름</th>
+                                        <th>회원 이메일</th>
+                                        <th>회원 등급</th>
+                                        <th>회원 상태</th>
+                                        <th>메일 작성</th>
+                                        <th>블랙리스트 관리</th>
+                                        <th>게시글 관리</th>
+                                        <th>권한 관리</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="member : ${response}">
+                                        <td th:text="${member.id}">memberId</td>
+                                        <td th:text="${member.nickname}">nickname</td>
+                                        <td th:text="${member.username}">username</td>
+                                        <td th:text="${member.email}">email</td>
+                                        <td>
+                                            <span th:if="${#strings.equals(member.memberRole, 'COMMON')}">새싹회원</span>
+                                            <span th:if="${#strings.equals(member.memberRole, 'PREMIUM')}">우수회원</span>
+                                            <span th:if="${#strings.equals(member.memberRole, 'ADMIN')}">관리자</span>
+                                        </td>
+                                        <td th:text="${member.memberStatus}">memberStatus</td>
+                                        <td>
+                                            <button class="btn btn-primary email-btn" th:attr="data-member-id=${member.id}">
+                                                작성
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-danger" th:if="${#strings.equals(member.memberStatus, 'BLOCKED')}" th:onclick="'activeMember(' + ${member.id} + ')'" >해제</button>
+                                            <button class="btn btn-success" th:if="${#strings.equals(member.memberStatus, 'ACTIVE')}" th:onclick="'blockMember(' + ${member.id} + ')'" >등록</button>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/admin/members/{memberId}/boards(memberId=${member.id})}">
+                                                <button class="btn btn-info">이동</button>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <button  type="button" class="pl-3 btn btn-danger"
+                                                     id="roleModelButton" th:onclick="|openModal([[${member.id}]])|">수정</button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+        <!-- AdminApplication content end -->
+
+        <!-- 사용자 권한 변경 모달 시작 -->
+        <div id="modal" class="modal-overlay" style="display: none">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">사용자 권한 변경</h5>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/admin/member-role" method="post">
+                            <input type="number" name="memberId" value="0" readonly hidden />
+                            <div>
+                                <select id="memberRole" name="memberRole" class="form-select form-select-sm" aria-label=".form-select-sm example">
+                                    <option th:value="null" selected>변경하려는 권한을 선택해주세요.</option>
+                                    <option th:each="role : ${memberRoles}" th:value="${role}" th:text="${role.description}" value="1">One</option>
+                                </select>
+                            </div>
+
+                            <button type="button" class="btn btn-secondary" onclick="closeModal()">닫기</button>
+                            <button type="submit" class="btn btn-danger">권한 변경</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 사용자 권한 변경 모달 종료 -->
+
+    </div>
+    <!-- Content end -->
+
+    <div th:replace="~{/common/navigationbar :: control-sidebar}"></div>
+
+</div>
+</body>
+
+<!-- jQuery -->
+<script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+<!-- Bootstrap 4 -->
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<!-- AdminLTE App -->
+<script th:src="@{/js/adminlte.min.js}"></script>
+<!-- AdminLTE for demo purposes -->
+<script th:src="@{/js/demo.js}"></script>
+
+<script>
+
+    function toggleSort(icon, sortBy, sortOrder) {
+        const upIcon = icon;
+        const downIcon = icon.nextElementSibling;
+        const ascending = upIcon.style.display === "";
+
+        upIcon.style.display = ascending ? "none" : "";
+        downIcon.style.display = ascending ? "" : "none";
+
+        sortData(sortBy, sortOrder);
+
+    }
+
+    function sortData(sortBy, sortOrder) {
+        fetch("/api/admin/members?sortBy=" + sortBy + "&sortOrder=" + sortOrder)
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                renderTable(data);
+            })
+            .catch(function (error) {
+                alert("Error: " + error);
+            });
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
+    function renderTable(data) {
+        const tableBody = document.getElementById("memberTable").getElementsByTagName("tbody")[0];
+        tableBody.innerHTML = "";
+
+        data.forEach(function (member) {
+            const row =
+                "<tr>" +
+                "<td>" + member.id + "</td>" +
+                "<td>" + member.nickname + "</td>" +
+                "<td>" + member.username + "</td>" +
+                "<td>" + member.phone + "</td>" +
+                "<td>" + member.email + "</td>" +
+                "<td>" + member.memberRole + "</td>" +
+                "<td>" + member.memberStatus + "</td>" +
+                "<td>" + formatDate(member.createdAt) + "</td>" +
+                "<td>" + member.boardCount + "</td>" +
+                "<td>" + member.replyCount + "</td>" +
+                "<td>" +
+                "<button class=\"btn btn-primary email-btn\" th:attr=\"data-member-id=${member.id}\">메일 작성</button>" +
+                "</td>" +
+                "<td>" +
+                " onchange=\"confirmBlacklist(this)\">" +
+                "</td>" +
+                "</tr>";
+
+            tableBody.innerHTML += row;
+        })
+    }
+
+    const emailButtons = document.querySelectorAll(".email-btn");
+
+    emailButtons.forEach((button) => {
+        button.addEventListener("click", (event) => {
+            const memberId = event.target.getAttribute("data-member-id");
+            if (memberId) {
+                window.location.href = "/admin/email/write/" + memberId;
+            } else {
+                console.error("Invalid memberId");
+            }
+        });
+    });
+
+    function blockMember(memberId) {
+        const message = "정말로 블랙리스트에 등록하시겠습니까?";
+        if (window.confirm(message)) {
+            const apiUrl = "/api/admin/block/" + memberId;
+
+            fetch(apiUrl, { method: "POST" })
+                .then(function (response) {
+                    alert("블랙리스트 등록이 성공적으로 수행되었습니다.");
+                    window.location.href = "/admin/members-control"
+                })
+                .catch(function (error) {
+                    alert("Error: " + error);
+                });
+        }
+    }
+
+    function activeMember(memberId) {
+        const message = "정말로 블랙리스트에서 해제하시겠습니까?";
+        if (window.confirm(message)) {
+            const apiUrl = "/api/admin/active/" + memberId;
+
+            fetch(apiUrl, { method: "POST" })
+                .then(function (response) {
+                    alert("블랙리스트 해제가 성공적으로 수행되었습니다.");
+                    window.location.href = "/admin/members-control"
+                })
+                .catch(function (error) {
+                    alert("Error: " + error);
+                });
+        }
+    }
+
+    /* 사용자 권한 수정 시작 */
+    const roleModal = document.getElementById("modal");
+    function openModal(memberId) {
+        roleModal.style.display = "flex";
+        $('input[name=memberId]').attr('value', memberId);
+    }
+
+    function closeModal() {
+        roleModal.style.display = "none";
+    }
+    /* 사용자 권한 수정 종료 */
+
+</script>
+
+</html>
