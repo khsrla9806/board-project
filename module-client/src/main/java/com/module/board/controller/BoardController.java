@@ -40,7 +40,7 @@ public class BoardController {
     @GetMapping("/createForm")
     public String boardCreateForm(Principal principal, Model model) {
         checkAuthentication(principal);
-        model.addAttribute("board", new BoardDto.CreateRequest());
+        model.addAttribute("board", BoardDto.CreateRequest.builder().build());
 
         return "board/createForm";
     }
@@ -72,6 +72,7 @@ public class BoardController {
         model.addAttribute("boards", boards);
         model.addAttribute("categoryTitle", BoardView.ALL);
         model.addAttribute("maxPage", 5);
+        model.addAttribute("keyword", keyword);
 
         return "board/boards";
     }
@@ -86,6 +87,7 @@ public class BoardController {
         model.addAttribute("boards", boards);
         model.addAttribute("categoryTitle", BoardView.COMMON);
         model.addAttribute("maxPage", 5);
+        model.addAttribute("keyword", keyword);
 
         return "board/boards";
     }
@@ -100,6 +102,7 @@ public class BoardController {
         model.addAttribute("boards", boards);
         model.addAttribute("categoryTitle", BoardView.PRO);
         model.addAttribute("maxPage", 5);
+        model.addAttribute("keyword", keyword);
 
         return "board/boards";
     }

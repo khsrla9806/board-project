@@ -23,8 +23,15 @@ spring:
     show-sql: true
     database: mysql
 
-server:
-  port: 8088
+  sql:
+    init:
+      mode: always
 
-scheduler:
-    cron: "0/30 * * * * *"
+mybatis:
+  mapper-locations:
+    - classpath:mapper/**.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+server:
+  port: 8081

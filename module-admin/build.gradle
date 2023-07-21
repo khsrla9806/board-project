@@ -2,8 +2,8 @@ plugins {
     id 'java'
 }
 
-group = 'com.modules'
-version = 'unspecified'
+group = 'com.module'
+version = '0.0.1-SNAPSHOT'
 
 repositories {
     mavenCentral()

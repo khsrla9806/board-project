@@ -14,7 +14,6 @@ import java.util.UUID;
 import static com.module.member.type.EmailAuthStatus.UNVERIFIED;
 import static com.module.member.type.EmailAuthStatus.VERIFIED;
 
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

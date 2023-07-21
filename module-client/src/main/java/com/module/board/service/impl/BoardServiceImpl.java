@@ -48,12 +48,13 @@ public class BoardServiceImpl implements BoardService {
         Member member = memberRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new MemberException(ErrorCode.LOAD_USER_FAILED));
 
-        Board board = new Board();
-        board.setTitle(dto.getTitle());
-        board.setContent(dto.getContent());
-        board.setCategory(getCategoryByMember(member));
-        board.setStatus(ACTIVE);
-        board.setMember(member);
+        Board board = Board.builder()
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .category(getCategoryByMember(member))
+                .status(ACTIVE)
+                .member(member)
+                .build();
 
         saveThumbnailFile(thumbnail, board);
         boardRepository.save(board);
